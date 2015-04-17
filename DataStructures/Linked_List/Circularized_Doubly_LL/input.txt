@@ -1,0 +1,34 @@
+Popular Sorting Algorithms
+
+Insertion Sort
+Selection Sort
+Bubble Sort
+
+Shell Sort
+Comb Sort
+Merge Sort
+Heap Sort
+Quick Sort
+
+Counting Sort
+Bucket Sort
+Radix Sort
+
+Odd-even Sort
+Flash Sort
+Burst Sort
+Postman Sort
+Stooge Sort
+Sample Sort
+
+While there is a large number of sorting algorithms,
+in practical implementations a few algorithms predominate.
+
+Insertion sort is widely used for small data sets,
+while for large data sets an efficient sorting algorithm
+is used, such as heap sort, merge sort, or quicksort.
+
+
+
+
+
