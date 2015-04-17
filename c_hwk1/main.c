@@ -47,13 +47,20 @@ int main(int argc, char** argv)
 {
     char fname_in[256]="";
     char fname_out[256]="";
+    int x =0;
+    int* structArray_size = &x;
     /* Create a pointer to a future dynamically allocated array of structs   */
     LOC_DATA* pStructArray = NULL;
 
     get_fnames(fname_in, fname_out, argc, argv);
 
-    read_file(fname_in, pStructArray);
+    pStructArray = read_file(fname_in, structArray_size);
 
+    insertion_sort(pStructArray, *structArray_size);
+
+    write_file(fname_out,pStructArray, structArray_size);
+
+    free_memory(pStructArray, *structArray_size);
 
 #ifdef _MSC_VER
     printf(_CrtDumpMemoryLeaks() ? "Memory Leak\n" : "No Memory Leak\n");
@@ -70,15 +77,14 @@ void get_fnames(char* fname_in, char* fname_out, int argc, char** argv)
 {
     char default_fname_in[] = "in.txt";
     char default_fname_out[] = "out.txt";
-
     switch(argc)
     {
     case 1:
-        {
-          strcpy(fname_in, default_fname_in);
-          strcpy(fname_out, default_fname_out);
-          break;
-        }
+    {
+        strcpy(fname_in, default_fname_in);
+        strcpy(fname_out, default_fname_out);
+        break;
+    }
     case 2:
     {
         strcpy(fname_in, argv[1]);
