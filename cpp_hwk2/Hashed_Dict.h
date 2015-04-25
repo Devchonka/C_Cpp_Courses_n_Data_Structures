@@ -13,6 +13,8 @@
 #include <iostream>
 #include "singlyNode.h"
 
+const int HASH_SIZE = 31;
+
 /*******************************
    Class and method declarations.
 ********************************/
@@ -39,12 +41,9 @@ public:
         }
 
     }
-    ~hashedDict()
-    {
-        _clearDict();
-    }
+    ~hashedDict(){};
     bool addNode(const keyT&, const itemT&, unsigned int (*)(const keyT&));
-    bool searchNode(const keyT&, unsigned int (*)(const std::string&));
+    itemT searchNode(const keyT&, unsigned int (*)(const std::string&));
 
     // Aids for statistics for hash table
     int getCount() const;
@@ -141,7 +140,6 @@ void hashedDict<keyT,itemT>::printLLnum() const
     for (int i=0; i<_arSize; i++)
         std::cout<< _LLsize[i] << " ";
     std::cout<<std::endl;
-
 }
 /**
     Creates a node with provided item and key, obtains a hashed value using a function pointer provided,
@@ -154,6 +152,7 @@ bool hashedDict<keyT, itemT>::addNode (const keyT& newKey, const itemT& newItem,
 {
     bool ableToHash = true;
     singlyNode<keyT, itemT>* newNode = new singlyNode <keyT, itemT> (newKey, newItem);
+
     int hashIndex = hashFuncPtr(newKey);
 
     if (_nodes[hashIndex] == nullptr)
@@ -166,7 +165,7 @@ bool hashedDict<keyT, itemT>::addNode (const keyT& newKey, const itemT& newItem,
         _nodes[hashIndex] = newNode;
         _numCollisions++;
     }
-    _LLsize[hashIndex]++;
+   _LLsize[hashIndex]++;
     _count++;
     return ableToHash;
 }
@@ -178,26 +177,34 @@ bool hashedDict<keyT, itemT>::addNode (const keyT& newKey, const itemT& newItem,
 */
 
 template<class keyT, class itemT>
-bool hashedDict<keyT,itemT> :: searchNode(const keyT& searchKey, unsigned int (*hashFuncPtr)(const std::string&))
+itemT hashedDict<keyT,itemT> :: searchNode(const keyT& searchKey, unsigned int (*hashFuncPtr)(const std::string&))
 {
+    itemT foundVal = ' ';
     int index = hashFuncPtr(searchKey);
-    bool ableToFind = false;
 
     singlyNode<keyT, itemT>* searchPtr = _nodes[index];
+
+    std::cout<<index<< " is index being searched and the LL has num items " << _LLsize[index]<<std::endl;
+    // std::cout<<"the index contains value " << searchPtr->getKey()<<std::endl;
+
+    std::cout<< "Note the index contains values "<<searchPtr->getKey()<<" & "<<searchPtr->getFwd()->getKey()<<" & "
+    <<searchPtr->getFwd()->getKey()<<std::endl;
+
     for (int i = 0; i < _LLsize[index]; i++)
     {
+        std::cout<<"comparing possible item " << searchPtr->getKey()<< " to key " << searchKey <<std::endl;
+
         if (searchPtr->getKey() != searchKey)
+        {
             searchPtr = searchPtr->getFwd();
+        }
         else
         {
-            ableToFind = true;
-            std:: cout << searchPtr->getItem() << " " << searchPtr->getKey()<<std::endl;
+            foundVal = searchPtr->getItem();
             break;
         }
     }
-    if (!ableToFind)
-        std::cout << "Cannot find search entry " << std::endl;
-    return ableToFind;
+    return foundVal;
 }
 
 /**
@@ -238,12 +245,14 @@ void hashedDict<keyT,itemT>:: printHashed(bool indent) const
     This protected method can be called only by destructor.
 */
 
+/*
 template <class keyT, class itemT>
 void hashedDict<keyT, itemT>::_clearDict() const
 {
     for (int i =0; i< getCount(); i++)
-        delete _nodes.at(i);
+        delete _nodes[i];
     delete _nodes;
 }
+*/
 
 #endif // HASHED_DICT_H
