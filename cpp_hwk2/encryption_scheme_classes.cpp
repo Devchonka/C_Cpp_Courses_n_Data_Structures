@@ -1,6 +1,7 @@
 #include "encryption_scheme_classes.h"
 #include <bitset>
 #include <cstring>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -123,25 +124,18 @@ Ascii_Msg:: Ascii_Msg(Morse_Msg* mrs_msg): _mrs_msg(mrs_msg)
     }
 }
 
-string Ascii_Msg::mrs2ascii_word(string morse_word)
+string Ascii_Msg::mrs2ascii_word(string morse_word) // the function thats causing seg fault
 {
     // split word to letters by spaces between dots and dashes
+    cout<<morse_word<<endl;
     string delimiter = " ";
     size_t pos = 0;
-    string mrs_letter;
-    while((pos = morse_word.find(delimiter)) != string::npos)
+    unsigned int (*hashFuncPtr)(const string&) = hashMap;
+    std::vector<std::string> mrs_letters;
+    boost::split(mrs_letters, morse_word, boost::is_any_of(" "));
+    for(int i =0; i<mrs_letters.size(); i++)
     {
-        mrs_letter = morse_word.substr(0, pos);
-        cout << mrs_letter << endl;
-        //unsigned int (*hashFuncPtr)(const string&) = hashMap;
-        //_mrs_msg->morse_table.searchNode(mrs_letter, hashFuncPtr);
-        morse_word.erase(0, pos + delimiter.length());
+        cout<<mrs_letters[i]<<endl;
     }
-
-
 }
-
-
-
-
 

@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Hashed_Dict.h"
+unsigned int hashMap(const std::string&);
 
 class Binary_Msg
 {
@@ -15,7 +16,7 @@ class Binary_Msg
 
 public:
     Binary_Msg(char*, int*); // constructor
-    ~Binary_Msg(){}; // destructor
+    ~Binary_Msg() {}; // destructor
 
     std::bitset<2> get_bits(int);
     int get_num_bits();
@@ -34,7 +35,7 @@ public:
 
     Morse_Msg(Binary_Msg*); // constructor
     //Morse_Msg(const Morse_Msg&){}; // copy constructor
-    ~Morse_Msg(){}; // destructor
+    ~Morse_Msg() {}; // destructor
 
     Morse_Msg& operator = (const Morse_Msg&);
 
@@ -54,7 +55,7 @@ public:
     Ascii_Msg(Morse_Msg* mrs_msg); // constructor
     //Ascii_Msg(const Ascii_Msg& Ascii_Msg_Old){}; // copy constructor
 
-    ~Ascii_Msg(){}; // destructor
+    ~Ascii_Msg() {}; // destructor
 
     Ascii_Msg& operator = (const Ascii_Msg&);
 

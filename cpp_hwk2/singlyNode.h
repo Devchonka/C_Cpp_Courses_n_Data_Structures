@@ -14,8 +14,8 @@ private:
     singlyNode* _fwd;
 
 public:
-    singlyNode (): _fwd(nullptr) {};
-    singlyNode (keyT key, itemT item): _key(key), _item(item),_fwd(nullptr) {};
+    singlyNode(): _fwd(nullptr) {};
+    singlyNode(keyT key, itemT item): _key(key), _item(item),_fwd(nullptr) {};
     ~singlyNode() {};
     void setItem(const itemT& item)
     {
@@ -25,7 +25,7 @@ public:
     {
         _key=key;
     }
-    void setFwd (singlyNode<keyT, itemT>* nextNode)
+    void setFwd(singlyNode<keyT, itemT>* nextNode)
     {
         _fwd = nextNode;
     }

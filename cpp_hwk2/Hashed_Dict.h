@@ -1,4 +1,3 @@
-
 /**
     Hashed dictionary implementation using an array.
     Implemented as a template, thus parameter for static array is passed in as an argument.
@@ -34,14 +33,13 @@ public:
     hashedDict(const int arSize): _numCollisions(0), _count(0), _arSize(arSize),
         _LLsize(new int[arSize]), _nodes(new singlyNode<keyT, itemT>*[arSize])
     {
-        for (int i = 0; i< arSize; i++)
+        for(int i = 0; i< arSize; i++)
         {
             _nodes[i] = nullptr;
             _LLsize[i] = 0;
         }
-
     }
-    ~hashedDict(){};
+    ~hashedDict() {};
     bool addNode(const keyT&, const itemT&, unsigned int (*)(const keyT&));
     itemT searchNode(const keyT&, unsigned int (*)(const std::string&));
 
@@ -74,30 +72,32 @@ public:
 
 template <class keyT, class itemT>
 int hashedDict<keyT,itemT> ::  getCount() const
-    {
-        return _count;
-    }
+{
+    return _count;
+}
 
 template <class keyT, class itemT>
 int hashedDict<keyT,itemT> :: getColl() const
-    {
-        return _numCollisions;
-    }
+{
+    return _numCollisions;
+}
 
 template <class keyT, class itemT>
 float hashedDict<keyT,itemT> :: getLoadFac() const
-    {
-        return (float)(_count - _numCollisions)*100 / _arSize;
-    }
+{
+    return (float)(_count - _numCollisions)*100 / _arSize;
+}
 
 template <class keyT, class itemT>
 int hashedDict<keyT, itemT> :: getNumLL() const
 {
     int numLL = 0;
-    for (int i=0 ; i < _arSize; i++)
+    for(int i=0 ; i < _arSize; i++)
     {
-        if (_LLsize[i] > 1)
+        if(_LLsize[i] > 1)
+        {
             numLL++;
+        }
     }
     return numLL;
 }
@@ -106,29 +106,32 @@ template <class keyT, class itemT>
 int hashedDict<keyT,itemT>::getAveLLsize() const
 {
     int sum =0, numLL =0;
-    for (int i = 0; i<_arSize; i++)
-        if (_LLsize[i] > 1)
+    for(int i = 0; i<_arSize; i++)
+        if(_LLsize[i] > 1)
         {
             numLL ++;
             sum += _LLsize[i];
         }
-    if (numLL == 0)
+    if(numLL == 0)
+    {
         return 0;
+    }
     else
+    {
         return sum / numLL;
+    }
 }
 
 template <class keyT, class itemT>
 int hashedDict<keyT,itemT>::getMaxLLsize() const
 {
     int Max = _LLsize[0];
-    for (int i = 1; i<_arSize; i++)
+    for(int i = 1; i<_arSize; i++)
     {
-        if (_LLsize[i] != 0 && _LLsize[i] > Max)
+        if(_LLsize[i] != 0 && _LLsize[i] > Max)
         {
             Max = _LLsize[i];
         }
-
     }
     return Max;
 }
@@ -137,8 +140,10 @@ int hashedDict<keyT,itemT>::getMaxLLsize() const
 template <class keyT, class itemT>
 void hashedDict<keyT,itemT>::printLLnum() const
 {
-    for (int i=0; i<_arSize; i++)
+    for(int i=0; i<_arSize; i++)
+    {
         std::cout<< _LLsize[i] << " ";
+    }
     std::cout<<std::endl;
 }
 /**
@@ -148,16 +153,15 @@ void hashedDict<keyT,itemT>::printLLnum() const
 */
 
 template <class keyT, class itemT>
-bool hashedDict<keyT, itemT>::addNode (const keyT& newKey, const itemT& newItem, unsigned int (*hashFuncPtr)(const keyT&))
+bool hashedDict<keyT, itemT>::addNode(const keyT& newKey, const itemT& newItem, unsigned int (*hashFuncPtr)(const keyT&))
 {
     bool ableToHash = true;
     singlyNode<keyT, itemT>* newNode = new singlyNode <keyT, itemT> (newKey, newItem);
-
     int hashIndex = hashFuncPtr(newKey);
-
-    if (_nodes[hashIndex] == nullptr)
+    if(_nodes[hashIndex] == nullptr)
+    {
         _nodes[hashIndex] = newNode;
-
+    }
     else
     {
         ableToHash = false;
@@ -165,7 +169,7 @@ bool hashedDict<keyT, itemT>::addNode (const keyT& newKey, const itemT& newItem,
         _nodes[hashIndex] = newNode;
         _numCollisions++;
     }
-   _LLsize[hashIndex]++;
+    _LLsize[hashIndex]++;
     _count++;
     return ableToHash;
 }
@@ -181,20 +185,15 @@ itemT hashedDict<keyT,itemT> :: searchNode(const keyT& searchKey, unsigned int (
 {
     itemT foundVal = ' ';
     int index = hashFuncPtr(searchKey);
-
     singlyNode<keyT, itemT>* searchPtr = _nodes[index];
-
     std::cout<<index<< " is index being searched and the LL has num items " << _LLsize[index]<<std::endl;
     // std::cout<<"the index contains value " << searchPtr->getKey()<<std::endl;
-
     std::cout<< "Note the index contains values "<<searchPtr->getKey()<<" & "<<searchPtr->getFwd()->getKey()<<" & "
-    <<searchPtr->getFwd()->getKey()<<std::endl;
-
-    for (int i = 0; i < _LLsize[index]; i++)
+             <<searchPtr->getFwd()->getKey()<<std::endl;
+    for(int i = 0; i < _LLsize[index]; i++)
     {
         std::cout<<"comparing possible item " << searchPtr->getKey()<< " to key " << searchKey <<std::endl;
-
-        if (searchPtr->getKey() != searchKey)
+        if(searchPtr->getKey() != searchKey)
         {
             searchPtr = searchPtr->getFwd();
         }
@@ -217,42 +216,32 @@ void hashedDict<keyT,itemT>:: printHashed(bool indent) const
 {
     for(int i = 0; i < _arSize; i++)
     {
-        if (indent)
+        if(indent)
         {
             std::cout << "Index "<< i <<": ";
-            if (_LLsize[i] == 0)
+            if(_LLsize[i] == 0)
+            {
                 std::cout << std::endl;
+            }
         }
-        if (_LLsize[i] >0)
+        if(_LLsize[i] >0)
         {
-            if (indent)
+            if(indent)
+            {
                 std::cout<< std::right << std::setw(5);
+            }
             std::cout << _nodes[i]->getItem()<<std::endl;
             singlyNode<keyT,itemT>* nextNode = _nodes[i]->getFwd();
-            while (nextNode)
+            while(nextNode)
             {
-                if (indent)
+                if(indent)
+                {
                     std::cout<< std::right << std::setw(20);
+                }
                 std::cout << nextNode->getItem() <<std::endl;
                 nextNode = nextNode->getFwd();
             }
         }
     }
 }
-
-/**
-    Function that clears hash table and associated linked lists.
-    This protected method can be called only by destructor.
-*/
-
-/*
-template <class keyT, class itemT>
-void hashedDict<keyT, itemT>::_clearDict() const
-{
-    for (int i =0; i< getCount(); i++)
-        delete _nodes[i];
-    delete _nodes;
-}
-*/
-
 #endif // HASHED_DICT_H
