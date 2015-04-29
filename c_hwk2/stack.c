@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
@@ -9,9 +8,8 @@
 S_NODE* push(S_NODE* stack, double data)
 {
     S_NODE* pnew;
-
-    pnew = (S_NODE*) malloc(sizeof (S_NODE));
-    if (!pnew)
+    pnew = (S_NODE*) malloc(sizeof(S_NODE));
+    if(!pnew)
     {
         printf("... error in push!\n");
         exit(1);
@@ -19,7 +17,6 @@ S_NODE* push(S_NODE* stack, double data)
     pnew->stock_quote = data;
     pnew->next = stack;
     stack = pnew;
-
     return stack;
 }
 
@@ -29,12 +26,13 @@ S_NODE* push(S_NODE* stack, double data)
 S_NODE* pop(S_NODE** stack)
 {
     S_NODE *first;
-
-    if (*stack == NULL) return NULL;
+    if(*stack == NULL)
+    {
+        return NULL;
+    }
     first = *stack;
     *stack = (*stack)->next;
     first->next = NULL;
-
     return first;
 }
 
@@ -44,7 +42,10 @@ S_NODE* pop(S_NODE** stack)
 */
 double peek(S_NODE* stack)
 {
-    if (stack == NULL) return -1;
+    if(stack == NULL)
+    {
+        return -1;
+    }
     return stack->stock_quote;
 }
 
