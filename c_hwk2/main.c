@@ -48,21 +48,22 @@
 /* Functions to get input file name from user  */
 char* get_user_fname();
 bool validate_user_fname(char*);
-void read_file(char*, S_NODE**);
+void read_file(char*, S_NODE**, LL_NODE**);
+void user_menu();
 
 
 int main()
 {
     char* fname_input = get_user_fname();
-    printf("Your input filename is: %s\n", fname_input);
 
-
+    LL_NODE* list = init_list();
     S_NODE* stack = NULL;
-    double topVal;
 
-    read_file(fname_input, &stack);
+
+    read_file(fname_input, &stack, &list);
 
     /** Code to peek at top val in stack
+    double topVal;
     topVal = peek(stack);
        if(topVal==-1)
         printf("Stack is empty!\n");
@@ -72,29 +73,15 @@ int main()
 
 
     // LL stuff
-    NODE *init_list(void);
-    int   insert(NODE *list, char *data);
-    void  traverse_forw(NODE *list);
-    void  traverse_back(NODE *list);
 
-    NODE *list;
-    char data[20];
-    int  duplicate;
 
-    // build list
-    list = init_list();
-    while (printf("Enter string(or quit): "), gets(data),
-           strcmp(data, "quit"))
-    {
-        duplicate = insert(list, data);
-        if(duplicate)
-        {
-            printf("\"%s\" already in the list!\n");
-        }
-    }
-    // print out strings in list nodes
-    traverse_forw(list);
-    traverse_back(list);
+    user_menu();
+
+
+    /*
+    ll_traverse_forw(list);
+    ll_traverse_back(list);
+    */
 
 
 
@@ -141,7 +128,7 @@ bool validate_user_fname(char* fname)
 }
 
 
-void read_file(char* fname_in, S_NODE** stack)
+void read_file(char* fname_in, S_NODE** stack, LL_NODE** list)
 {
     char line[31];
     FILE* ifp;
@@ -154,15 +141,27 @@ void read_file(char* fname_in, S_NODE** stack)
         exit(EXIT_FAILURE);
     }
 
+double quote; char name[6]; int duplicate;
     while(fgets(line, sizeof(line), ifp))
     {
         if(line[0] != '\n')
         {
-            double quote; char name[6];
             sscanf(line, "%6[^ ]%*c%lf", name, &quote);
+
+            duplicate = ll_insert(*list, name);
+        if(duplicate)
+        {
+            printf("%s already in the list!\n", name);
+        }
+
             *stack = push(*stack, quote);
         }
         index++;
     }
     fclose(ifp);
+}
+
+void user_menu()
+{
+    printf("Here is the user menu...");
 }
