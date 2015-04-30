@@ -80,7 +80,7 @@ void ll_traverse_forw(LL_NODE *list)
 {
     putchar('\n');
     list = list->forw; // skip the dummy node
-    S_NODE* curr = NULL;
+    S_NODE* curr;
     while(list->stock_name[0] != DUMMY_TRAILER)
     {
         printf("%s\n", list->stock_name);
@@ -92,18 +92,17 @@ void ll_traverse_forw(LL_NODE *list)
     Prints stock names only
 */
 
-void ll_printStockInfo(LL_NODE* list, int from, int to, bool printQuote)
+void ll_printStockInfo(LL_NODE* list, int from, int to)
 {
     putchar('\n');
-
-    if ((from<0) || (to<0) || (from>list->quote_count) || (to>list->quote_count))
+    if((from<0) || (to<0) || (from>list->quote_count) || (to>list->quote_count))
+    {
         printf("Error: program may display only entries between 0 and %d for %s.\n", list->quote_count, list->stock_name);
-
+    }
     from = (from<0) ? 0 : from;
     to = (to<0) ? 0 : to;
     from = (from>list->quote_count) ? list->quote_count : from;
     to = (to>list->quote_count) ? list->quote_count : to;
-
     if(from < to)
     {
         for(int i=from; i < to; i++)
@@ -148,3 +147,50 @@ void ll_traverse_back(LL_NODE *list)
     return;
 }
 
+void print_n_stocks(LL_NODE* list, char* stock_from, char* stock_to) // menu option 2
+{
+    LL_NODE* curr;
+    if(strcmp(stock_from, stock_to)<=0)  //go forward
+    {
+        curr = list->forw;
+        while(strcmp(stock_from,curr->stock_name) > 0)
+        {
+            curr = curr->forw; // curr points to stock_from
+        }
+        while(strcmp(curr->stock_name, stock_to) <= 0)
+        {
+            printf("%s (%.2f)\n", curr->stock_name, curr->quote_stack->stock_quote);
+            curr = curr->forw;
+        }
+    }
+    else // go back
+    {
+        curr = list->back;
+        while(strcmp(stock_from,curr->stock_name) < 0)
+        {
+            curr = curr->back; // curr points to stock_from
+        }
+        while(strcmp(curr->stock_name, stock_to) >= 0)
+        {
+            printf("%s (%.2f)\n", curr->stock_name, curr->quote_stack->stock_quote);
+            curr = curr->back;
+        }
+    }
+}
+
+void print_n_quotes(LL_NODE* list, char* stock_name, int num_quotes) // option 1
+{
+    LL_NODE* curr = list->forw;
+    S_NODE* curr_stack;
+    while(strcmp(stock_name,curr->stock_name) > 0)
+    {
+        curr = curr->forw; // curr points to stock_from
+    }
+    printf("%s\n", curr->stock_name);
+    curr_stack = curr->quote_stack;
+    for(int i =0; i <num_quotes; i++)
+    {
+        printf("\t%.2f\n", curr_stack->stock_quote);
+        curr_stack = curr_stack->next;
+    }
+}

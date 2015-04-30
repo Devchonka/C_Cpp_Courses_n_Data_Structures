@@ -70,10 +70,6 @@ int main()
     */
     // LL stuff
     user_menu(list, fname_input);
-    /*ll_traverse_forw(list);
-
-    ll_traverse_back(list);
-    */
     return 0;
 }
 
@@ -130,19 +126,12 @@ void read_file(char* fname_in, LL_NODE** list)
     }
     double quote;
     char name[6];
-    int duplicate;
     while(fgets(line, sizeof(line), ifp))
     {
         if(line[0] != '\n')
         {
             sscanf(line, "%6[^ ]%*c%lf", name, &quote);
-            duplicate = ll_insert(*list, name, quote);
-            /*
-            if(duplicate)
-            {
-            printf("%s already in the list!\n", name);
-            }
-            */
+            ll_insert(*list, name, quote);
         }
         index++;
     }
@@ -158,13 +147,13 @@ Prompt user for 2 stock symbols, display sub-list of stocks (name +most recent q
 void user_menu(LL_NODE* list, char* fname_input)
 {
     int BUFFER_SIZE = 100;
-    char choice, command[BUFFER_SIZE];
+    char choice;
     do
     {
         putchar('\n');
         printf("********* MENU ************\n");
         printf("Your collection of %d unique stocks from %s is: ", list->quote_count, fname_input);
-        ll_printStockInfo(list, 0, list->quote_count, false);
+        ll_printStockInfo(list, 0, list->quote_count);
         putchar('\n');
         printf("1. Show some number of most recent quotes for a particular stock.\n");
         printf("2. Show portion of stocks + most recent quote between any 2 stock symbols.\n");
@@ -177,19 +166,19 @@ void user_menu(LL_NODE* list, char* fname_input)
     {
     case '1':
     {
-        char user_input[BUFFER_SIZE], stock_name[6]; int num_quotes;
+        char user_input[BUFFER_SIZE], stock_name[6];
+        int num_quotes;
         getchar();
         do
         {
- putchar('\n');
-        printf("**See some number of most recent quotes from particular stock**\n");
-        printf("Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):\t");
-        fgets(user_input, BUFFER_SIZE, stdin);
-        printf(user_input);
-        sscanf(user_input, "%[A-Z] %d", stock_name, &num_quotes);
+            putchar('\n');
+            printf("**See some number of most recent quotes from particular stock**\n");
+            printf("Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):\t");
+            fgets(user_input, BUFFER_SIZE, stdin);
+            sscanf(user_input, "%[A-Z] %d", stock_name, &num_quotes);
         }
         while(!(validate_stock_name(list, stock_name)) || !(validate_stock_num_quotes(list, stock_name, num_quotes)));
-
+        print_n_quotes(list, stock_name, num_quotes);
         break;
     }
     case '2':
@@ -198,27 +187,23 @@ void user_menu(LL_NODE* list, char* fname_input)
         getchar();
         do
         {
- putchar('\n');
-        printf("**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**\n");
-        printf("Enter the range, in the form: STOCK_FROM STOCK_TO:\t");
-        fgets(user_input, BUFFER_SIZE, stdin);
-        sscanf(user_input, "%[A-Z] %[A-Z]", stock_from, stock_to);
+            putchar('\n');
+            printf("**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**\n");
+            printf("Enter the range, in the form: STOCK_FROM STOCK_TO:\t");
+            fgets(user_input, BUFFER_SIZE, stdin);
+            sscanf(user_input, "%[A-Z] %[A-Z]", stock_from, stock_to);
         }
         while(!(validate_stock_name(list, stock_from)) || !(validate_stock_name(list, stock_to)));
-
-
-
-
-       // ll_printStockInfo(list, 0, list->quote_count, true);
+        print_n_stocks(list, stock_from, stock_to);
         break;
     }
     case '3':
         break;
     default:
-        {
-            printf("Error in switch statement in user menu.\n");
-            exit(EXIT_FAILURE);
-        }
+    {
+        printf("Error in switch statement in user menu.\n");
+        exit(EXIT_FAILURE);
+    }
     }
 }
 /**
@@ -229,34 +214,38 @@ void user_menu(LL_NODE* list, char* fname_input)
 bool validate_stock_name(LL_NODE* list, char* stock_name)
 {
     bool valid = (strlen(stock_name) < 2 || (strlen(stock_name))>5)? false : true;
-
-    if (valid)
+    if(valid)
     {
         LL_NODE* curr = list->forw;
-    while(strcmp(stock_name,curr->stock_name) > 0)
-        curr = curr->forw;
-    valid = (strcmp(stock_name, curr->stock_name))? false: true;
+        while(strcmp(stock_name,curr->stock_name) > 0)
+        {
+            curr = curr->forw;
+        }
+        valid = (strcmp(stock_name, curr->stock_name))? false: true;
     }
-    if (!valid)
+    if(!valid)
+    {
         printf("Please type in a correct existing stock name (displayed in main menu).\n");
+    }
     return valid;
 }
 
 bool validate_stock_num_quotes(LL_NODE* list, char* stock_name, int num_quotes)
 {
-
     bool valid = (num_quotes>0)? true : false;
-LL_NODE* curr;
-    if (valid)
+    LL_NODE* curr = NULL;
+    if(valid)
     {
         curr = list->forw;
-    while(strcmp(stock_name,curr->stock_name) > 0)
-        curr = curr->forw;
-    valid = (num_quotes <= curr->quote_count)? true: false;
+        while(strcmp(stock_name,curr->stock_name) > 0)
+        {
+            curr = curr->forw;
+        }
+        valid = (num_quotes <= curr->quote_count)? true: false;
     }
-    if (!valid)
+    if(!valid)
+    {
         printf("Please select at most the number of quotes recorded (%d) in %s.\n", curr->quote_count, stock_name);
+    }
     return valid;
-
-    return true;
 }
