@@ -1,6 +1,7 @@
 #ifndef CIRC_DOUBLY_LL
 #define CIRC_DOUBLY_LL
 
+#include <stdbool.h>
 #include "stack.h"
 
 #define DUMMY_TRAILER '\177'// octal ASCII code of last character in the ASCII table
@@ -20,7 +21,8 @@ LL_NODE* init_list(void);
 int   ll_insert(LL_NODE*, char*, double);
 void  ll_traverse_forw(LL_NODE*);
 void  ll_traverse_back(LL_NODE*);
-void ll_printStockNames(LL_NODE*, int, int);
+void ll_printStockInfo(LL_NODE*, int, int, bool);
 
+void print_n_quotes(char*, int);
 
 #endif // CIRC_DOUBLY_LL

@@ -85,11 +85,6 @@ void ll_traverse_forw(LL_NODE *list)
     {
         printf("%s\n", list->stock_name);
         curr = list->quote_stack;
-        for(int i=0; i<list->quote_count; i++)
-        {
-            printf("\t%.2f\n", peek(curr));
-            curr = curr->next;
-        }
         list = list->forw;
     }
 }
@@ -97,40 +92,17 @@ void ll_traverse_forw(LL_NODE *list)
     Prints stock names only
 */
 
-void ll_printStockNames(LL_NODE* list, int from, int to)
+void ll_printStockInfo(LL_NODE* list, int from, int to, bool printQuote)
 {
     putchar('\n');
-    // list = list->forw; // skip the dummy node
 
     if ((from<0) || (to<0) || (from>list->quote_count) || (to>list->quote_count))
-        printf("Error: program may display only entries between 0 and %d.\n", list->quote_count);
+        printf("Error: program may display only entries between 0 and %d for %s.\n", list->quote_count, list->stock_name);
 
     from = (from<0) ? 0 : from;
     to = (to<0) ? 0 : to;
     from = (from>list->quote_count) ? list->quote_count : from;
     to = (to>list->quote_count) ? list->quote_count : to;
-
-    printf("from: %d and to: %d \n", from, to);
-
-    /*
-    if(from<0)
-    {
-        from = 0;
-    }
-    if(from > list->quote_count)
-    {
-        from = list->quote_count;
-    }
-    if(to<0)
-    {
-        to = 0;
-    }
-    if(to > list->quote_count)
-    {
-        to = list->quote_count;
-    }
-
-    */
 
     if(from < to)
     {
