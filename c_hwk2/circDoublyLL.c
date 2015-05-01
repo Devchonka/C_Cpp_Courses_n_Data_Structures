@@ -99,7 +99,7 @@ void ll_traverse_forw(LL_NODE *list)
         int num_quotes = list->quote_count;
         for(int i =0; i<num_quotes; i++)
         {
-            printf("\t%d\n",curr->stock_quote);
+            printf("\t%.2f\n",curr->stock_quote);
             curr = curr->next;
         }
         list = list->forw;
@@ -219,4 +219,24 @@ void print_n_quotes(LL_NODE* list, char* stock_name, int num_quotes) // option 1
         printf("\t%.2f\n", curr_stack->stock_quote);
         curr_stack = curr_stack->next;
     }
+}
+
+/**
+Function free_list will free all dynamically allocated contents of the list and the stacks within each list entry.
+*/
+void free_list(LL_NODE* list)
+{
+    LL_NODE* pWalk = list->forw;
+    S_NODE* temp = NULL;
+
+    while(pWalk->stock_name[0] != DUMMY_TRAILER)
+    {
+        for (int i =0; i<pWalk->quote_count; i++)
+        {
+           free(pop(&(pWalk->quote_stack))); // free stack node
+        }
+        free(pWalk); // free list node
+        pWalk = pWalk->forw;
+    }
+    free(list);
 }

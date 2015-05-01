@@ -62,6 +62,7 @@ int main()
     LL_NODE* list = init_list();
     read_file(fname_input,&list);
     user_menu(list, fname_input);
+    free_list(list);
     return 0;
 }
 
