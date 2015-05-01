@@ -1,3 +1,10 @@
+/**********************************************************
+** Project: c_hwk2
+** Advanced C, Hwk 2 : A circularized doubly linked list
+** containing stock names and quotes.
+** This header file is for the linked list functions.
+**
+***********************************************************/
 #ifndef CIRC_DOUBLY_LL
 #define CIRC_DOUBLY_LL
 
@@ -6,6 +13,9 @@
 
 #define DUMMY_TRAILER '\177'// octal ASCII code of last character in the ASCII table
 
+/******************
+** LIST NODE STRUCT
+*******************/
 typedef struct ll_node LL_NODE;
 struct ll_node
 {
@@ -17,6 +27,9 @@ struct ll_node
     LL_NODE *back;
 };
 
+/******************
+** LIST NODE STRUCT
+*******************/
 LL_NODE* init_list(void);
 int   ll_insert(LL_NODE*, char*, double);
 void  ll_traverse_forw(LL_NODE*);

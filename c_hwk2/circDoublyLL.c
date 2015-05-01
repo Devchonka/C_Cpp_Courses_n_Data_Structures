@@ -1,16 +1,23 @@
+/**********************************************************
+** Project: c_hwk2
+** Advanced C, Hwk 2 : A circularized doubly linked list
+** containing stock names and quotes.
+** This source file is for the circDoublyLL.h header.
+**
+***********************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "circDoublyLL.h"
 
-/***************************************************
-    Initialization of a circularly doubly-linked
-    list with one sentinel node
+/**
+ Function init_list. Initializes a circular doubly linked list with one sentinel node.
+ It will skip the dummy node except to simplify the insert (/delete) operations.
 */
 LL_NODE* init_list(void)
 {
-    LL_NODE *list;
+    LL_NODE* list;
     // allocate the sentinel node
     list = (LL_NODE *) malloc(sizeof(LL_NODE));
     if(!list)
@@ -26,11 +33,11 @@ LL_NODE* init_list(void)
     return list;
 }
 
-/***************************************************
-    Insert a node in a sorted circularly
-    doubly-linked list with one sentinel node
-        return 1 - if duplicate
-        return 0 - otherwise
+/**
+ Function ll_insert. Takes in a stock name and quote, and inserts it into the list. The function
+ checks if the stock name is a duplicate and if so, it does not allocate an additional list node
+ but rather simply stores the quote onto the existing list node's stack.
+ Function returns 1 if duplicate, 0 otherwise.
 */
 int ll_insert(LL_NODE* list, char* new_stock_name, double quote)
 {
@@ -76,6 +83,10 @@ int ll_insert(LL_NODE* list, char* new_stock_name, double quote)
     list with one sentinel node to print out the
     contents of each node
 */
+
+/**
+ Function ll_traverse_forw. Traverses forward the list and prints each node's stock name and entire contents.
+*/
 void ll_traverse_forw(LL_NODE *list)
 {
     putchar('\n');
@@ -85,13 +96,35 @@ void ll_traverse_forw(LL_NODE *list)
     {
         printf("%s\n", list->stock_name);
         curr = list->quote_stack;
+        int num_quotes = list->quote_count;
+        for(int i =0; i<num_quotes; i++)
+        {
+            printf("\t%d\n",curr->stock_quote);
+            curr = curr->next;
+        }
         list = list->forw;
     }
 }
-/**
-    Prints stock names only
-*/
 
+/**
+ Function ll_traverse_back. Function traverses backwards and prints the stock name until it hits the sentinel node.
+*/
+void ll_traverse_back(LL_NODE *list)
+{
+    putchar('\n');
+    list = list->back; // skip the dummy node
+    while(list->stock_name[0] != DUMMY_TRAILER)
+    {
+        printf("%s\n", list->stock_name);
+        list = list->back;
+    }
+    return;
+}
+
+/**
+    Function ll_printStockInfo. Prints stock names only between 2 integers, between zero and the loaded number
+    of stocks by using the sentinel node's count value to see the number of nodes in the list.
+*/
 void ll_printStockInfo(LL_NODE* list, int from, int to)
 {
     putchar('\n');
@@ -130,23 +163,12 @@ void ll_printStockInfo(LL_NODE* list, int from, int to)
     putchar('\n');
 }
 
-/***************************************************
-    Traverses backward a circularly doubly-linked
-    list with one sentinel node to print out the
-    contents of each node
+/**
+ Function print_n_stocks prints some number of stocks chosen by the user, displaying the
+ stock name and its most recent quote. The user inputs have both been previously
+ validated. This function will print the shortest path between 2 chosen stocks,
+ whether it's t the front or to the back traversal.
 */
-void ll_traverse_back(LL_NODE *list)
-{
-    putchar('\n');
-    list = list->back; // skip the dummy node
-    while(list->stock_name[0] != DUMMY_TRAILER)
-    {
-        printf("%s\n", list->stock_name);
-        list = list->back;
-    }
-    return;
-}
-
 void print_n_stocks(LL_NODE* list, char* stock_from, char* stock_to) // menu option 2
 {
     LL_NODE* curr;
@@ -166,7 +188,7 @@ void print_n_stocks(LL_NODE* list, char* stock_from, char* stock_to) // menu opt
     else // go back
     {
         curr = list->back;
-        while(strcmp(stock_from,curr->stock_name) < 0)
+        while(strcmp(stock_from, curr->stock_name) < 0)
         {
             curr = curr->back; // curr points to stock_from
         }
@@ -178,6 +200,10 @@ void print_n_stocks(LL_NODE* list, char* stock_from, char* stock_to) // menu opt
     }
 }
 
+/**
+ Function print_n_quotes. Prints the chosen stock's name and some number of quotes, which have both been previously
+ validated.
+*/
 void print_n_quotes(LL_NODE* list, char* stock_name, int num_quotes) // option 1
 {
     LL_NODE* curr = list->forw;

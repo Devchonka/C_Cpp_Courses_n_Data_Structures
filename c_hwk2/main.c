@@ -13,12 +13,12 @@
 **  IDE (compiler):     GNU GCC Compiler, Unix OS
 **
     Procedure:
-    x 1) Read fname from user, if blank, use STOCKS.TXT (Finish Monday)
+    1) Read fname from user, if blank, use STOCKS.TXT (Finish Monday)
     DATA STRUCTURES:
-        x 2) Create LL node containing stock symbol, pointer to stack of quote nodes, pointers to prev,next LL nodes, count of quotes
-        x 3) Create stack node containing stock quote, pointer to next stack node
-        x 4) Create circularly doubly LL (sorted by stock name) w/ 1 sentinel node (each stack is created within LL node)
-    x 6) Read data into LL and stacks
+        2) Create LL node containing stock symbol, pointer to stack of quote nodes, pointers to prev,next LL nodes, count of quotes
+        3) Create stack node containing stock quote, pointer to next stack node
+        4) Create circularly doubly LL (sorted by stock name) w/ 1 sentinel node (each stack is created within LL node)
+    6) Read data into LL and stacks
     MENU:
         7) Prompt user for stock symbol and positive integer (# recent quotes to show) until the user enters
         some sort of sentinel which you may decide upon
@@ -36,8 +36,6 @@
 ************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <math.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
@@ -45,7 +43,6 @@
 #include "stack.h"
 #include "circDoublyLL.h"
 
-/* Functions to get input file name from user  */
 char* get_user_fname();
 bool validate_user_fname(char*);
 void read_file(char*, LL_NODE**);
@@ -54,29 +51,28 @@ bool validate_stock_name(LL_NODE*, char*);
 bool validate_stock_num_quotes(LL_NODE*, char*, int);
 
 
-
+/******************************
+Function main. It gets the input file name from the user, initializes a list, reads the file provided by the user, and populates
+the circularly linked list with stock names and quotes from the file. It presents the user with a menu to choose what they would
+like displayed.
+*******************************/
 int main()
 {
     char* fname_input = get_user_fname();
     LL_NODE* list = init_list();
     read_file(fname_input,&list);
-    /** Code to peek at top val in stack
-    double topVal;
-    topVal = peek(stack);
-       if(topVal==-1)
-        printf("Stack is empty!\n");
-        else
-    printf("%.2f\n", topVal);
-    */
-    // LL stuff
     user_menu(list, fname_input);
     return 0;
 }
 
 /******************************
-**     MENU FUNCTIONS
+**     INPUT FILE FUNCTIONS
 *******************************/
 
+/**
+Function get_user_fname. Its a loop that prompts the user for an input file name to load the stock data, validating
+the input.
+*/
 char* get_user_fname()
 {
     int BUFFER_SIZE = 25;
@@ -90,6 +86,10 @@ char* get_user_fname()
     return (fname_input[0]=='\n') ? "stocks.txt": fname_input;
 }
 
+/**
+Function validate_user_fname. It checks that something is entered, and that the entered file exists and may be opened
+in read mode.
+*/
 bool validate_user_fname(char* fname)
 {
     FILE* file = fopen(strtok(fname, "\n"), "r");
@@ -112,7 +112,9 @@ bool validate_user_fname(char* fname)
     }
 }
 
-
+/**
+Function read_file. Read a valid file and populates a list with stock names and quotes from parsing the data line by line.
+*/
 void read_file(char* fname_in, LL_NODE** list)
 {
     char line[31];
@@ -138,11 +140,13 @@ void read_file(char* fname_in, LL_NODE** list)
     fclose(ifp);
 }
 
+/**********************************
+**     MENU / VALIDATION FUNCTIONS
+***********************************/
+
 /**
-Prompt user for stock symbol and positive integer (# recent quotes to show) until the user enters
-        some sort of sentinel which you may decide upon
-Prompt user for 2 stock symbols, display sub-list of stocks (name +most recent quote), ascending OR descending,
-         until the user enters some sort of sentinel which you may decide upon
+Function user_menu. Prompts the user to either see a portion of the stocks with their most recent quote,
+or to show a certain number of quotes for a certain stock, or to exit. It will reject other entries.
 */
 void user_menu(LL_NODE* list, char* fname_input)
 {
@@ -207,6 +211,7 @@ void user_menu(LL_NODE* list, char* fname_input)
     }
 }
 /**
+Function validate_stock_name. Validates the entered in name of a stock.
  Checks 2 conditions : first, if the stored string is between 2 and 5 long. If so, then it searches
  for the stock name in the list and returns true if found.
 */
@@ -230,6 +235,10 @@ bool validate_stock_name(LL_NODE* list, char* stock_name)
     return valid;
 }
 
+/**
+Function validate__stock_num_quotes. It checks that a number is positive and is less than the number of stocks contained
+in the stack for the stored data from the input file.
+*/
 bool validate_stock_num_quotes(LL_NODE* list, char* stock_name, int num_quotes)
 {
     bool valid = (num_quotes>0)? true : false;

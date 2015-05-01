@@ -1,9 +1,17 @@
+/**********************************************************
+** Project: c_hwk2
+** Advanced C, Hwk 2 : A circularized doubly linked list
+** containing stock names and quotes.
+** This source file is for the stack.h header.
+**
+***********************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
 
-/***************************************************
-    Stack Insert: insert in the beginning - data is the stack_quote
+/**
+Function push. Inserts a stack node into the top of the stack.
+If possible, allocates dynamically a stack node and inserts it into the stack.
 */
 S_NODE* push(S_NODE* stack, double data)
 {
@@ -20,8 +28,8 @@ S_NODE* push(S_NODE* stack, double data)
     return stack;
 }
 
-/***************************************************
-    Stack Delete: delete the first S_NODE
+/**
+ Function pop. Pops a node off the stack and returns it as a pointer to the caller.
 */
 S_NODE* pop(S_NODE** stack)
 {
@@ -37,8 +45,8 @@ S_NODE* pop(S_NODE** stack)
 }
 
 
-/***************************************************
-    Stack Peek: Peek at the first S_NODE
+/**
+ Function peek. Returns the value of what is at the top of the stack, or -1 if it's empty.
 */
 double peek(S_NODE* stack)
 {
