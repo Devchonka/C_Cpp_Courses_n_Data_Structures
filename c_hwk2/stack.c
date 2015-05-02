@@ -16,10 +16,10 @@ If possible, allocates dynamically a stack node and inserts it into the stack.
 S_NODE* push(S_NODE* stack, double data)
 {
     S_NODE* pnew;
-    pnew = (S_NODE*) malloc(sizeof(S_NODE));
+    pnew = (S_NODE*) calloc(1, sizeof(S_NODE));
     if(!pnew)
     {
-        printf("... error in push!\n");
+        printf("Error: Not enough memory to push stack node.\n");
         exit(1);
     }
     pnew->stock_quote = data;
@@ -57,4 +57,13 @@ double peek(S_NODE* stack)
     return stack->stock_quote;
 }
 
-
+/**
+ Function free_stack. Entirely frees the dynamically allocated memory of the specified number of nodes, starting from top.
+ */
+void free_stack (S_NODE* s_node, int num_nodes)
+ {
+     for (int i =0; i<num_nodes; i++)
+        {
+           free(pop(&(s_node))); // free stack node
+        }
+ }

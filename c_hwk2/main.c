@@ -63,6 +63,7 @@ int main()
     read_file(fname_input,&list);
     user_menu(list, fname_input);
     free_list(list);
+    free(fname_input);
     return 0;
 }
 
@@ -84,7 +85,19 @@ char* get_user_fname()
         fgets(fname_input, BUFFER_SIZE, stdin);
     }
     while(!validate_user_fname(fname_input));
-    return (fname_input[0]=='\n') ? "stocks.txt": fname_input;
+    char* fname_returned;
+    if(fname_input[0]=='\n')
+    {
+        strcpy(fname_input, "stocks.txt");
+    }
+    fname_returned = (char*) calloc(strlen(fname_input)+1, sizeof(char));
+    if(!fname_returned)
+    {
+        printf("Error: not enough memory for string allocation of filename.\n");
+        exit(1);
+    }
+    strcpy(fname_returned, fname_input);
+    return fname_returned;
 }
 
 /**

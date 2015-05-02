@@ -26,5 +26,6 @@ struct s_node
 S_NODE* push(S_NODE*, double);
 S_NODE* pop(S_NODE**);
 double peek(S_NODE*);
+void free_stack (S_NODE*, int);
 
 #endif // MY_STACK_H

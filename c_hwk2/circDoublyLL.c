@@ -19,10 +19,10 @@ LL_NODE* init_list(void)
 {
     LL_NODE* list;
     // allocate the sentinel node
-    list = (LL_NODE *) malloc(sizeof(LL_NODE));
+    list = (LL_NODE *) calloc(1, sizeof(LL_NODE));
     if(!list)
     {
-        printf("Error in init_list!\n");
+        printf("Error: Not enough memory to allocate node in init_list!\n");
         exit(1);
     }
     list->stock_name[0] = DUMMY_TRAILER;
@@ -30,6 +30,7 @@ LL_NODE* init_list(void)
     list->quote_count = 0;
     list->forw = list;
     list->back = list;
+    list->quote_stack = NULL;
     return list;
 }
 
@@ -55,10 +56,10 @@ int ll_insert(LL_NODE* list, char* new_stock_name, double quote)
     if(strcmp(new_stock_name, curr->stock_name))   // strcmp returns 0 if equal
     {
         duplicate = 0; // not a duplicate
-        pnew = (LL_NODE *) malloc(sizeof(LL_NODE));
+        pnew = (LL_NODE *) calloc(1, sizeof(LL_NODE));
         if(!pnew)
         {
-            printf("Fatal memory allocation error in insert!\n");
+            printf("Error: not enough memory to allocate list node in insert!\n");
             exit(3);
         }
         strcpy(pnew->stock_name, new_stock_name);
@@ -227,16 +228,13 @@ Function free_list will free all dynamically allocated contents of the list and 
 void free_list(LL_NODE* list)
 {
     LL_NODE* pWalk = list->forw;
-    S_NODE* temp = NULL;
 
     while(pWalk->stock_name[0] != DUMMY_TRAILER)
     {
-        for (int i =0; i<pWalk->quote_count; i++)
-        {
-           free(pop(&(pWalk->quote_stack))); // free stack node
-        }
-        free(pWalk); // free list node
+        free_stack(pWalk->quote_stack, pWalk->quote_count);
         pWalk = pWalk->forw;
+        free(pWalk->back); // free list node
     }
+    free_stack(list->quote_stack, list->quote_count);
     free(list);
 }
