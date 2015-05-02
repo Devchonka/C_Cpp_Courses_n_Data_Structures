@@ -47,6 +47,7 @@ char* get_user_fname();
 bool validate_user_fname(char*);
 void read_file(char*, LL_NODE**);
 void user_menu(LL_NODE*, char*);
+char get_user_choice(char*, LL_NODE*);
 bool validate_stock_name(LL_NODE*, char*);
 bool validate_stock_num_quotes(LL_NODE*, char*, int);
 
@@ -165,21 +166,7 @@ or to show a certain number of quotes for a certain stock, or to exit. It will r
 void user_menu(LL_NODE* list, char* fname_input)
 {
     int BUFFER_SIZE = 100;
-    char choice;
-    do
-    {
-        putchar('\n');
-        printf("********* MENU ************\n");
-        printf("Your collection of %d unique stocks from %s is: ", list->quote_count, fname_input);
-        ll_printStockInfo(list, 0, list->quote_count);
-        putchar('\n');
-        printf("1. Show some number of most recent quotes for a particular stock.\n");
-        printf("2. Show portion of stocks + most recent quote between any 2 stock symbols.\n");
-        printf("3. Quit.\n");
-        printf("Enter an option (1, 2, or 3) : ");
-        scanf(" %c", &choice); //discards blanks and reads the first non-whitespace character
-    }
-    while(choice<'1' || choice>'3');
+    char choice = get_user_choice(fname_input, list);
     switch(choice)
     {
     case '1':
@@ -224,6 +211,30 @@ void user_menu(LL_NODE* list, char* fname_input)
     }
     }
 }
+
+/**
+ Function get_user_choice. Returns the validated choice that the user selected back to the user menu.
+*/
+char get_user_choice(char* fname_input, LL_NODE* list)
+{
+    char choice;
+    do
+    {
+        putchar('\n');
+        printf("********* MENU ************\n");
+        printf("Your collection of %d unique stocks from %s is: ", list->quote_count, fname_input);
+        ll_printStockInfo(list, 0, list->quote_count);
+        putchar('\n');
+        printf("1. Show some number of most recent quotes for a particular stock.\n");
+        printf("2. Show portion of stocks + most recent quote between any 2 stock symbols.\n");
+        printf("3. Quit.\n");
+        printf("Enter an option (1, 2, or 3) : ");
+        scanf(" %c", &choice); //discards blanks and reads the first non-whitespace character
+    }
+    while(choice<'1' || choice>'3');
+    return choice;
+}
+
 /**
 Function validate_stock_name. Validates the entered in name of a stock.
  Checks 2 conditions : first, if the stored string is between 2 and 5 long. If so, then it searches
