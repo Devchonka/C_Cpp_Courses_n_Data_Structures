@@ -165,51 +165,55 @@ or to show a certain number of quotes for a certain stock, or to exit. It will r
 */
 void user_menu(LL_NODE* list, char* fname_input)
 {
-    int BUFFER_SIZE = 100;
-    char choice = get_user_choice(fname_input, list);
-    switch(choice)
+    int BUFFER_SIZE = 200, temp_stock_name_size = 30;
+    char choice;
+    do
     {
-    case '1':
-    {
-        char user_input[BUFFER_SIZE], stock_name[6];
-        int num_quotes;
-        getchar();
-        do
+        choice = get_user_choice(fname_input, list);
+        switch(choice)
         {
-            putchar('\n');
-            printf("**See some number of most recent quotes from particular stock**\n");
-            printf("Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):\t");
-            fgets(user_input, BUFFER_SIZE, stdin);
-            sscanf(user_input, "%[A-Z] %d", stock_name, &num_quotes);
-        }
-        while(!(validate_stock_name(list, stock_name)) || !(validate_stock_num_quotes(list, stock_name, num_quotes)));
-        print_n_quotes(list, stock_name, num_quotes);
-        break;
-    }
-    case '2':
-    {
-        char user_input[BUFFER_SIZE], stock_from[6], stock_to[6];
-        getchar();
-        do
+        case '1':
         {
-            putchar('\n');
-            printf("**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**\n");
-            printf("Enter the range, in the form: STOCK_FROM STOCK_TO:\t");
-            fgets(user_input, BUFFER_SIZE, stdin);
-            sscanf(user_input, "%[A-Z] %[A-Z]", stock_from, stock_to);
+            char user_input[BUFFER_SIZE], stock_name[temp_stock_name_size];
+            int num_quotes;
+            do
+            {
+                putchar('\n');
+                printf("**See some number of most recent quotes from particular stock**\n");
+                printf("\tEnter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):\t");
+                fgets(user_input, BUFFER_SIZE, stdin);
+                sscanf(user_input, "%[A-Z] %d", stock_name, &num_quotes);
+            }
+            while(!(validate_stock_name(list, stock_name)) || !(validate_stock_num_quotes(list, stock_name, num_quotes)));
+            print_n_quotes(list, stock_name, num_quotes);
+            break;
         }
-        while(!(validate_stock_name(list, stock_from)) || !(validate_stock_name(list, stock_to)));
-        print_n_stocks(list, stock_from, stock_to);
-        break;
+        case '2':
+        {
+            char user_input[BUFFER_SIZE], stock_from[temp_stock_name_size], stock_to[temp_stock_name_size];
+            do
+            {
+                putchar('\n');
+                printf("**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**\n");
+                printf("***The shortest path will be displayed, forward or backward***\n");
+                printf("\tEnter the range, in the form: STOCK_FROM STOCK_TO:\t");
+                fgets(user_input, BUFFER_SIZE, stdin);
+                sscanf(user_input, "%[A-Z] %[A-Z]", stock_from, stock_to);
+            }
+            while(!(validate_stock_name(list, stock_from)) || !(validate_stock_name(list, stock_to)));
+            print_n_stocks(list, stock_from, stock_to);
+            break;
+        }
+        case '3':
+            break;
+        default:
+        {
+            printf("Error in switch statement in user menu.\n");
+            exit(EXIT_FAILURE);
+        }
+        }
     }
-    case '3':
-        break;
-    default:
-    {
-        printf("Error in switch statement in user menu.\n");
-        exit(EXIT_FAILURE);
-    }
-    }
+    while(choice!='3');
 }
 
 /**
@@ -217,7 +221,8 @@ void user_menu(LL_NODE* list, char* fname_input)
 */
 char get_user_choice(char* fname_input, LL_NODE* list)
 {
-    char choice;
+    int BUFFER_SIZE = 20;
+    char choice, line[BUFFER_SIZE];
     do
     {
         putchar('\n');
@@ -225,11 +230,12 @@ char get_user_choice(char* fname_input, LL_NODE* list)
         printf("Your collection of %d unique stocks from %s is: ", list->quote_count, fname_input);
         ll_printStockInfo(list, 0, list->quote_count);
         putchar('\n');
-        printf("1. Show some number of most recent quotes for a particular stock.\n");
-        printf("2. Show portion of stocks + most recent quote between any 2 stock symbols.\n");
-        printf("3. Quit.\n");
+        printf("   1. Show some number of most recent quotes for a particular stock.\n");
+        printf("   2. Show portion of stocks + most recent quote between any 2 stock symbols.\n");
+        printf("   3. Quit.\n");
         printf("Enter an option (1, 2, or 3) : ");
-        scanf(" %c", &choice); //discards blanks and reads the first non-whitespace character
+        fgets(line, BUFFER_SIZE, stdin);
+        choice = (strlen(line)>2)? '0' : line[0];
     }
     while(choice<'1' || choice>'3');
     return choice;
@@ -255,7 +261,7 @@ bool validate_stock_name(LL_NODE* list, char* stock_name)
     }
     if(!valid)
     {
-        printf("Please type in a correct existing stock name (displayed in main menu).\n");
+        printf("\nPlease type in a correct existing stock name (displayed in main menu).\n");
     }
     return valid;
 }
@@ -279,7 +285,152 @@ bool validate_stock_num_quotes(LL_NODE* list, char* stock_name, int num_quotes)
     }
     if(!valid)
     {
-        printf("Please select at most the number of quotes recorded (%d) in %s.\n", curr->quote_count, stock_name);
+        printf("\nPlease select at most the number of quotes recorded (%d) in %s.\n", curr->quote_count, stock_name);
     }
     return valid;
 }
+
+/**
+elena@elena-e5250 ~/CodeBlocksProjects/c_hwk2 $ gcc -std=c99  *.c *.h -o c_hwk2
+elena@elena-e5250 ~/CodeBlocksProjects/c_hwk2 $ valgrind --tool=memcheck --leak-check=yes --track-origins=yes ./c_hwk2
+==11356== Memcheck, a memory error detector
+==11356== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==11356== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==11356== Command: ./c_hwk2
+==11356==
+Enter input filename:
+==11356== Syscall param open(filename) points to unaddressable byte(s)
+==11356==    at 0x4F22620: __open_nocancel (syscall-template.S:81)
+==11356==    by 0x4EB0FC7: _IO_file_fopen@@GLIBC_2.2.5 (fileops.c:228)
+==11356==    by 0x4EA54A3: __fopen_internal (iofopen.c:90)
+==11356==    by 0x401266: validate_user_fname (in /home/elena/CodeBlocksProjects/c_hwk2/c_hwk2)
+==11356==    by 0x4011B3: get_user_fname (in /home/elena/CodeBlocksProjects/c_hwk2/c_hwk2)
+==11356==    by 0x4010C2: main (in /home/elena/CodeBlocksProjects/c_hwk2/c_hwk2)
+==11356==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==11356==
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : BLAH!!
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : 1
+
+**See some number of most recent quotes from particular stock**
+	Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):	XLNX 100
+
+Please select at most the number of quotes recorded (10) in XLNX.
+
+**See some number of most recent quotes from particular stock**
+	Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):	XLNX 10
+XLNX
+	93.00
+	33.12
+	18.75
+	26.95
+	26.95
+	40.75
+	33.60
+	67.75
+	35.69
+	24.72
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : 1
+
+**See some number of most recent quotes from particular stock**
+	Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):	BLAH!
+
+Please type in a correct existing stock name (displayed in main menu).
+
+**See some number of most recent quotes from particular stock**
+	Enter the stock name and number of quotes, in the form: STOCK_NAME NUMBER (ie GOOG 3):	AAPL 2
+AAPL
+	184.40
+	91.12
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : 2
+
+**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**
+***The shortest path will be displayed, forward or backward***
+	Enter the range, in the form: STOCK_FROM STOCK_TO:	BLAH!
+
+Please type in a correct existing stock name (displayed in main menu).
+
+**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**
+***The shortest path will be displayed, forward or backward***
+	Enter the range, in the form: STOCK_FROM STOCK_TO:	VZ NVDA
+VZ (43.51)
+TDF (21.92)
+NVDA (34.65)
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : NVDA XLNX
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : 2
+
+**See stocks between 2 stock symbols along with their most recent quote (ie GOOG VZ)**
+***The shortest path will be displayed, forward or backward***
+	Enter the range, in the form: STOCK_FROM STOCK_TO:	NVDA XLNX
+NVDA (34.65)
+TDF (21.92)
+VZ (43.51)
+XLNX (93.00)
+
+********* MENU ************
+Your collection of 10 unique stocks from stocks.txt is:
+AAPL	BRCD	CSCO	GOOG	MIPS	MSFT	NVDA	TDF	VZ	XLNX
+
+   1. Show some number of most recent quotes for a particular stock.
+   2. Show portion of stocks + most recent quote between any 2 stock symbols.
+   3. Quit.
+Enter an option (1, 2, or 3) : 3
+==11356==
+==11356== HEAP SUMMARY:
+==11356==     in use at exit: 0 bytes in 0 blocks
+==11356==   total heap usage: 163 allocs, 163 frees, 3,971 bytes allocated
+==11356==
+==11356== All heap blocks were freed -- no leaks are possible
+==11356==
+==11356== For counts of detected and suppressed errors, rerun with: -v
+==11356== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+elena@elena-e5250 ~/CodeBlocksProjects/c_hwk2 $
+
+*/
