@@ -9,6 +9,9 @@ void strstr_ex1(); // counts # times substring occurs in string
 void strspn_ex0(); // given an allowed set, how many characters to skip until it finds char in set (c is complement, opp)
 void strpbrk_ex0(); // count # sentences in string : tokenize
 void strchr_ex1(); // parse whats in string between 2 # characters
+void strtok_ex0(); // tokenize string and convert to integers from string - recall it destroys the string by placing in it \0
+void string_arrays_ex0(); // traverse array of strings
+// NOTE: The last element in an array of pointers should always be NULL !!!
 
 int main()
 {
@@ -17,16 +20,17 @@ int main()
     //strstr_ex1();
     //strspn_ex0();
     //strpbrk_ex0();
-    strchr_ex1();
+    //strchr_ex1();
+    //strtok_ex0();
+    //string_arrays_ex0();
+
     return 0;
 }
 
 void strchr_ex_0() // find all 'o' in string
 {
-    char s1[] ="I am the one, the only one.";
-    char *ptr1, *ptr2;
+    char s1[] ="I am the one, the only one.", *ptr1;
     ptr1 = strchr(s1, 'o');
-    ptr2 = strrchr(s1,'o');
     printf("The string is: %s\n", s1);
     printf("Address of beginning of s1 is: %p\n", s1);
     for(ptr1 =s1; (ptr1= strchr(ptr1,'o')) != NULL; ptr1++) // interesting condition to skip to every 'o' !!
@@ -98,20 +102,61 @@ void strpbrk_ex0() // count # sentences in a file
 void strchr_ex1() // extract whats in string between 2 # characters
 {
     char line[80], *ptr1, *ptr2;
-
     while(gets(line), strcmp(line,"quit"))
     {
         ptr1 = strchr(line, '#');
-       if (ptr1)
+        if(ptr1)
         {
             ptr1++;
             ptr2 = strchr(ptr1,'#');
         }
-        if (!ptr1 || !ptr2)
+        if(!ptr1 || !ptr2)
         {
             printf("String needs 2 '#' characters!\n");
             continue;
         }
         printf("%.*s\n\n", ptr2-ptr1, ptr1);
+    }
+}
+
+void strtok_ex0()
+{
+    int tokennum, num;
+    char line[256], *lineptr, *tokenptr, *endp; // note: lineptr is needed since line[] cannot change! ptr const.
+    while(printf("\nEnter some integers: "), gets(line), strcmp(line,"quit"))
+    {
+        lineptr = line;
+        for(tokennum =1; tokenptr = strtok(lineptr, "\040\t"); lineptr = NULL, tokennum++)
+        {
+            num = (int) strtol(tokenptr, &endp, 10); // long int strtol(const char *str, char **endptr, int base)
+            if(*endp != '\0') // most important is endp: if points to \0, its valid int!!
+            {
+                printf("   Token number %d is not a valid integer, cant convert %c!\n", tokennum, *endp);
+            }
+            else // note: endp will point to first char that is not convertible
+            {
+                printf("   Token number %d is = %d\n", tokennum, num);
+            }
+        }
+    }
+}
+
+void string_arrays_ex0() // print arrays of strings
+{
+    char *commands[] = { "copy",
+                            "delete",
+                            "print",
+                            "move",
+                            "display",
+                            "rename",
+                            "quit",
+                            NULL};
+
+    char **mover = commands;
+
+    while(*mover)
+    {
+        puts(*mover);
+        mover++;
     }
 }
