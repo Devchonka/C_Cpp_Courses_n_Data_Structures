@@ -1,12 +1,14 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // for exit func
 #include <string.h>
+#include <ctype.h> // for isdigit()
 
 void strchr_ex_0(); // address of character in string
 void strstr_ex_0(); // substrings in string
 void strstr_ex1(); // counts # times substring occurs in string
 void strspn_ex0(); // given an allowed set, how many characters to skip until it finds char in set (c is complement, opp)
-void strbrk_ex0();
+void strpbrk_ex0(); // count # sentences in string : tokenize
+void strchr_ex1(); // parse whats in string between 2 # characters
 
 int main()
 {
@@ -14,7 +16,8 @@ int main()
     //strstr_ex_0();
     //strstr_ex1();
     //strspn_ex0();
-    strbrk_ex0();
+    //strpbrk_ex0();
+    strchr_ex1();
     return 0;
 }
 
@@ -35,7 +38,6 @@ void strchr_ex_0() // find all 'o' in string
 void strstr_ex_0() // look for substrings
 {
     char a[] = "cat", b[] = "cattle", c[] = "concatenate", d[] = "foobar";
-
     printf("Address of b = %p\n\
            Address of c = %p\n\
            Address of d = %p\n\
@@ -52,7 +54,6 @@ void strstr_ex1() // count # times substring occurs in string
         count++;
         pWalk+= strlen(substring);
     }
-
     printf("'%s' appears %d times in the string '%s'\n", substring, count, string);
 }
 
@@ -64,14 +65,53 @@ void strspn_ex0() // count where a character appears in a string from an allowed
                         abcdefghijklmnopqrstuvwxyz";
     int num_not_skipped = strspn(sentence, nonsense);
     int num_skipped = strcspn(sentence, nonsense); // NOTE: c is the COMPLEMENT, OR OPPOSITE OF STRSPN
-
     printf("%d chars were skipped intil nonsense was found in sentence '%s'\n", num_skipped, sentence);
     printf("%d chars were NOT skipped intil nonsense was found in sentence '%s'\n", num_not_skipped, sentence);
 }
 
-void strbrk_ex0()
+void strpbrk_ex0() // count # sentences in a file
 {
+#define BIGLINE 1024 // define size of a long line
+    int num_sentences =0;
+    char* fname = "strbrk_example.dat";
+    char line[BIGLINE], *pWalk;
+    FILE* fp;
+    if((fp = fopen(fname, "r")) ==NULL)
+    {
+        printf("Fail to open file\n");
+        exit(1);
+    }
+    while(fgets(line, BIGLINE-1, fp))
+    {
+        for(pWalk = line; pWalk = strpbrk(pWalk, "?!."); pWalk++)
+        {
+            if(!isdigit(pWalk[1]))
+            {
+                num_sentences++;
+            }
+            for(; pWalk[1] =='?' || pWalk[1] == '!'; pWalk++) {}
+        }
+    }
+    printf("File has %d sentences in it.\n", num_sentences);
+}
 
+void strchr_ex1() // extract whats in string between 2 # characters
+{
+    char line[80], *ptr1, *ptr2;
 
-
+    while(gets(line), strcmp(line,"quit"))
+    {
+        ptr1 = strchr(line, '#');
+       if (ptr1)
+        {
+            ptr1++;
+            ptr2 = strchr(ptr1,'#');
+        }
+        if (!ptr1 || !ptr2)
+        {
+            printf("String needs 2 '#' characters!\n");
+            continue;
+        }
+        printf("%.*s\n\n", ptr2-ptr1, ptr1);
+    }
 }
