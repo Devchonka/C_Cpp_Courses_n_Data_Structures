@@ -14,17 +14,19 @@
     Procedure:
     x 1) Create struct record instance
     x 2) Read in file to load some records
-    3) Create menu for user to allow 4 options
+    3) Create menu for user to allow 5 options (display all, quit)
+        - insert
+        - delete
+        - find and display
     4) Create menu keyboard validation for user
      - names: only have letters
      - student id: exactly 4 digits
      - amount needs a decimal point number between 10-99999.99
     5) Make sure all string functions are strtok, strtod, etc
-    6)
+    x 6) Make sure arguments come from command line
+    7) Create binary file
 
-
-
-    x) Check memory leak detection using VALGRIND
+    8) Check memory leak detection using VALGRIND
 
     To compile code:
         gcc -std=c99  *.c *.h -o c_hwk3
@@ -40,19 +42,41 @@
 #include "record.h"
 
 void read_file(const char*);
+void user_menu();
 char get_user_choice();
 bool validate_new_record();
+char* get_fname(char**);
 
 
 
 const unsigned int LINE_SIZE = 512;
-const char* FNAME = "fin_aid.txt";
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
-    read_file(FNAME);
-
+    char* fname = get_fname(argv);
+    read_file(fname);
+    user_menu();
     return 0;
+}
+
+/**
+Function get_fname. Returns filename inputted from command line, if the right number of arguments was put in,
+and if the file can be opened in read mode.
+*/
+char* get_fname(char* argv[])
+{
+    if(!argv[1] || argv[2])
+    {
+        printf("Error: Please run the program with 1 argument (ie input_file.txt)\n");
+        exit(1);
+    }
+    FILE* file = fopen(argv[1], "r");
+    if(file == 0)
+    {
+        printf("Error: Input file cannot be opened.\n");
+        exit(1);
+    }
+    return argv[1];
 }
 
 /**
@@ -72,13 +96,11 @@ void read_file(const char* fname_in)
     char temp_Lname[21], temp_Fname[21];
     double temp_amount;
     unsigned int temp_sId;
-
     while(fgets(line, LINE_SIZE, ifp))
     {
         if(line[0] != '\n')
         {
             sscanf(line, "%d %20[^ ]%*c %20[^ ]%*c %lf", &temp_sId, temp_Lname, temp_Fname, &temp_amount);
-
         }
         index++;
     }
@@ -97,7 +119,6 @@ void user_menu()
     char temp_Lname[21], temp_Fname[21];
     double temp_amount;
     unsigned int temp_sId;
-
     char choice;
     do
     {
@@ -106,8 +127,8 @@ void user_menu()
         {
         case '1':
         {
-                printf("*****Display current records in database.*****\n");
-                // print whats hashed to disk
+            printf("*****Display current records in database.*****\n");
+            // print whats hashed to disk
             break;
         }
         case '2':
@@ -117,7 +138,6 @@ void user_menu()
             {
                 putchar('\n');
                 printf("****Add new record entry into database.****\n");
-
                 fgets(user_input, LINE_SIZE, stdin);
                 //parse line using str functions
             }
@@ -132,7 +152,6 @@ void user_menu()
             {
                 putchar('\n');
                 printf("****Delete record entry from database.****\n");
-
                 fgets(user_input, LINE_SIZE, stdin);
                 //parse line using str functions
             }
@@ -141,6 +160,11 @@ void user_menu()
             break;
         }
         case '4':
+            {
+                // find and display certain record
+                break;
+            }
+        case '5':
             break;
         default:
         {
@@ -149,7 +173,7 @@ void user_menu()
         }
         }
     }
-    while(choice!='3');
+    while(choice!='5');
 }
 
 /**
@@ -163,15 +187,16 @@ char get_user_choice()
         putchar('\n');
         printf("********* MENU ************\n");
         putchar('\n');
-        printf("   1. Display current records in database.\n");
+        printf("   1. Display all current records in database.\n");
         printf("   2. Add new record entry into database.\n");
         printf("   3. Delete record from database.\n");
-        printf("   4. Quit.\n");
-        printf("Enter an option (1, 2, 3, or 4) : ");
+        printf("   4. Find and display certain record from database.\n");
+        printf("   5. Quit.\n");
+        printf("Enter an option (1, 2, 3, 4, or 5) : ");
         fgets(line, LINE_SIZE, stdin);
         choice = (strlen(line)>2)? '0' : line[0];
     }
-    while(choice<'1' || choice>'4');
+    while(choice<'1' || choice>'5');
     return choice;
 }
 
