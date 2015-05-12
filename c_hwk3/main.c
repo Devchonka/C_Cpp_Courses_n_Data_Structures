@@ -18,11 +18,11 @@
         - insert
         - delete
         - find and display
-    4) Create menu keyboard validation for user
+    x 4) Create menu keyboard validation for user
      - names: only have letters
      - student id: exactly 4 digits
      - amount needs a decimal point number between 10-99999.99
-    5) Make sure all string functions are strtok, strtod, etc
+    x 5) Make sure all string functions are strtok, strtod, etc
     x 6) Make sure arguments come from command line
     7) Create binary file
 
@@ -34,19 +34,12 @@
         valgrind --tool=memcheck --leak-check=yes ./c_hwk3
 ************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-
 #include "record.h"
 
+char* get_fname(char**);
 void read_file(const char*);
 void user_menu();
 char get_user_choice();
-bool validate_new_record();
-char* get_fname(char**);
-
 
 
 const unsigned int LINE_SIZE = 512;
@@ -55,7 +48,16 @@ int main(int argc, char* argv[])
 {
     char* fname = get_fname(argv);
     read_file(fname);
+    printf("HELLO %s!\n", fname);
+    /*
     user_menu();
+    */
+    /* // RECORD LINE VALIDATION
+    char record[] = "5673 HALL MARC 93.13";
+    printf("%d\n",validate_new_record(record));
+    //printf("%d\n",validate_name("54"));
+    //printf("%d\n",validate_studentID("hhhh"));
+    //printf("%d\n",validate_amount("10.00"));*/
     return 0;
 }
 
@@ -76,11 +78,12 @@ char* get_fname(char* argv[])
         printf("Error: Input file cannot be opened.\n");
         exit(1);
     }
+    fclose(file);
     return argv[1];
 }
 
 /**
-Function read_file. Reads a valid file and ..
+Function read_file. Reads a valid file and adds records into the hash.
 */
 void read_file(const char* fname_in)
 {
@@ -100,7 +103,7 @@ void read_file(const char* fname_in)
     {
         if(line[0] != '\n')
         {
-            sscanf(line, "%d %20[^ ]%*c %20[^ ]%*c %lf", &temp_sId, temp_Lname, temp_Fname, &temp_amount);
+            sscanf(line, "%u %20[^ ]%*c %20[^ ]%*c %lf", &temp_sId, temp_Lname, temp_Fname, &temp_amount);
         }
         index++;
     }
@@ -116,9 +119,6 @@ Function user_menu. Prompts the user to ...
 */
 void user_menu()
 {
-    char temp_Lname[21], temp_Fname[21];
-    double temp_amount;
-    unsigned int temp_sId;
     char choice;
     do
     {
@@ -127,7 +127,8 @@ void user_menu()
         {
         case '1':
         {
-            printf("*****Display current records in database.*****\n");
+            putchar('\n');
+            printf("*****Display all current records in database.*****\n");
             // print whats hashed to disk
             break;
         }
@@ -138,11 +139,15 @@ void user_menu()
             {
                 putchar('\n');
                 printf("****Add new record entry into database.****\n");
-                fgets(user_input, LINE_SIZE, stdin);
-                //parse line using str functions
+                printf("Correct format: studentId FirstName LastName FinancialAid\n");
+                printf("\nAdd new record in form similar to (6745 SMITH ANNA 7769.87): ");
+                if(!fgets(user_input, LINE_SIZE, stdin))
+                {
+                    printf("Error: Error getting line from user input.\n");
+                }
             }
-            while(!(validate_new_record()));
-            // add new record
+            while(!(validate_new_record(user_input)));
+            // insert new record
             break;
         }
         case '3':
@@ -152,18 +157,21 @@ void user_menu()
             {
                 putchar('\n');
                 printf("****Delete record entry from database.****\n");
-                fgets(user_input, LINE_SIZE, stdin);
-                //parse line using str functions
+                printf("Enter student ID whose record you would like deleted: ");
+                if(!fgets(user_input, LINE_SIZE, stdin))
+                {
+                    printf("Error: Error getting line from input file.\n");
+                }
             }
-            while(!(validate_new_record())); // should be validate just 1 thing..
+            while(!(validate_new_record(user_input))); // should be validate just 1 thing..
             // delete record
             break;
         }
         case '4':
-            {
-                // find and display certain record
-                break;
-            }
+        {
+            // find and display certain record
+            break;
+        }
         case '5':
             break;
         default:
@@ -193,19 +201,12 @@ char get_user_choice()
         printf("   4. Find and display certain record from database.\n");
         printf("   5. Quit.\n");
         printf("Enter an option (1, 2, 3, 4, or 5) : ");
-        fgets(line, LINE_SIZE, stdin);
+        if(!fgets(line, LINE_SIZE, stdin))
+        {
+            printf("Error: Error getting user choice input.\n");
+        }
         choice = (strlen(line)>2)? '0' : line[0];
     }
     while(choice<'1' || choice>'5');
     return choice;
-}
-
-/**
-Function validate_new_record.
-*/
-
-bool validate_new_record()
-{
-    //
-    return true;
 }
