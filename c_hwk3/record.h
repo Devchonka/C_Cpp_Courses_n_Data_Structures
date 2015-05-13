@@ -6,6 +6,11 @@
 #include <stdbool.h>
 #include <string.h>
 
+
+#define TABSIZE 100
+#define OFLOWSIZE 100
+#define BUCKETSIZE 4 // structs per bucket
+
 typedef struct record RECORD;
 struct record
 {
@@ -20,7 +25,12 @@ bool has_only_allowed(char*, char*);
 bool validate_name(char*);
 bool validate_studentID(char*);
 bool validate_amount(char*);
+RECORD get_rec_from_valid_line(char*);
 
+long hash_func (int, int); // hash by student ID
+FILE* create_hash_file(char*);
 
+void insert_record(RECORD, FILE*);
+void search_record(char*, long, FILE*);
 
 #endif // RECORD_H

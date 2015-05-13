@@ -38,26 +38,31 @@
 
 char* get_fname(char**);
 void read_file(const char*);
-void user_menu();
+void user_menu(FILE*);
 char get_user_choice();
 
 
 const unsigned int LINE_SIZE = 512;
+char* FNAME_BIN = "records.dat";
 
 int main(int argc, char* argv[])
 {
+
     char* fname = get_fname(argv);
     read_file(fname);
-    printf("HELLO %s!\n", fname);
-    /*
-    user_menu();
-    */
+
+    FILE* fp = create_hash_file(FNAME_BIN);
+    user_menu(fp);
+
+
+/*
     /* // RECORD LINE VALIDATION
     char record[] = "5673 HALL MARC 93.13";
     printf("%d\n",validate_new_record(record));
     //printf("%d\n",validate_name("54"));
     //printf("%d\n",validate_studentID("hhhh"));
     //printf("%d\n",validate_amount("10.00"));*/
+    fclose(fp);
     return 0;
 }
 
@@ -117,7 +122,7 @@ void read_file(const char* fname_in)
 /**
 Function user_menu. Prompts the user to ...
 */
-void user_menu()
+void user_menu(FILE* fp)
 {
     char choice;
     do
@@ -134,20 +139,29 @@ void user_menu()
         }
         case '2':
         {
-            char user_input[LINE_SIZE];
+            char user_input_record[LINE_SIZE], temp_input[LINE_SIZE];
+
             do
             {
+
                 putchar('\n');
-                printf("****Add new record entry into database.****\n");
+                printf("\n****Add new record entry into database.****\n");
                 printf("Correct format: studentId FirstName LastName FinancialAid\n");
                 printf("\nAdd new record in form similar to (6745 SMITH ANNA 7769.87): ");
-                if(!fgets(user_input, LINE_SIZE, stdin))
+                if(!fgets(user_input_record, LINE_SIZE, stdin))
                 {
                     printf("Error: Error getting line from user input.\n");
                 }
+                user_input_record[strlen(user_input_record)-1] = '\0'; // get rid of newline
+                strcpy(temp_input, user_input_record);
             }
-            while(!(validate_new_record(user_input)));
+            while(!(validate_new_record(temp_input)));
+
             // insert new record
+            RECORD rec = get_rec_from_valid_line(user_input_record);
+
+            insert_record(rec, fp);
+
             break;
         }
         case '3':
@@ -165,11 +179,15 @@ void user_menu()
             }
             while(!(validate_new_record(user_input))); // should be validate just 1 thing..
             // delete record
+            //long address = hash_func(temp_studentID, HASHTABLE_SIZE);
+
             break;
         }
         case '4':
         {
             // find and display certain record
+            //long address = hash_func(temp_studentID, HASHTABLE_SIZE);
+            //search_record(token, address, fp);
             break;
         }
         case '5':
