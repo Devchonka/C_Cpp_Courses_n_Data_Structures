@@ -25,6 +25,7 @@
     x 5) Make sure all string functions are strtok, strtod, etc
     x 6) Make sure arguments come from command line
     7) Create binary file
+    8) Make all entries be in upper case
 
     8) Check memory leak detection using VALGRIND
 
@@ -37,7 +38,7 @@
 #include "record.h"
 
 char* get_fname(char**);
-void read_file(const char*);
+void read_file(const char*, FILE*);
 void user_menu(FILE*);
 char get_user_choice();
 
@@ -49,10 +50,9 @@ int main(int argc, char* argv[])
 {
 
     char* fname = get_fname(argv);
-    read_file(fname);
-
-    FILE* fp = create_hash_file(FNAME_BIN);
-    user_menu(fp);
+    FILE* fp_binary_out = create_hash_file(FNAME_BIN); // creates fileHandle to the output binary file
+    read_file(fname, fp_binary_out);
+    user_menu(fp_binary_out);
 
 
 /*
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     //printf("%d\n",validate_name("54"));
     //printf("%d\n",validate_studentID("hhhh"));
     //printf("%d\n",validate_amount("10.00"));*/
-    fclose(fp);
+    fclose(fp_binary_out);
     return 0;
 }
 
@@ -90,8 +90,9 @@ char* get_fname(char* argv[])
 /**
 Function read_file. Reads a valid file and adds records into the hash.
 */
-void read_file(const char* fname_in)
+void read_file(const char* fname_in, FILE* fp_binary_out)
 {
+    printf("Reading in records from text file %s into binary file %s\n\n", fname_in, FNAME_BIN);
     char line[LINE_SIZE];
     FILE* ifp;
     ifp = fopen(fname_in, "r");
@@ -104,11 +105,15 @@ void read_file(const char* fname_in)
     char temp_Lname[21], temp_Fname[21];
     double temp_amount;
     unsigned int temp_sId;
+    RECORD rec;
     while(fgets(line, LINE_SIZE, ifp))
     {
         if(line[0] != '\n')
         {
-            sscanf(line, "%u %20[^ ]%*c %20[^ ]%*c %lf", &temp_sId, temp_Lname, temp_Fname, &temp_amount);
+            //sscanf(line, "%u %20[^ ]%*c %20[^ ]%*c %lf", &temp_sId, temp_Lname, temp_Fname, &temp_amount);
+            line[strlen(line)-1] = '\0'; // get rid of newline
+            rec = get_rec_from_valid_line(line);
+            insert_record(rec, fp_binary_out);
         }
         index++;
     }

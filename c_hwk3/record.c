@@ -112,7 +112,7 @@ HASHING TO DISK RECORD FUNCTIONS
 long hash_func(int key, int hashTable_size)
 {
     long address = 0;
-    address += key * key * key;
+    address = pow(key,3) + key - 23;
     return address % hashTable_size;
 }
 
@@ -122,7 +122,7 @@ long hash_func(int key, int hashTable_size)
 FILE* create_hash_file(char* filename)
 {
     FILE* fp;
-    RECORD hashtable[TABSIZE][BUCKETSIZE] = {""};
+    RECORD hashtable[TABSIZE][BUCKETSIZE] = {{""}};
     RECORD overflow[OFLOWSIZE] = {""};
     if((fp = fopen(filename, "w+b")) == NULL)
     {
@@ -151,6 +151,7 @@ void insert_record(RECORD rec, FILE* fp)
 {
     RECORD detect;
     long address = hash_func(rec.studentId, TABSIZE);
+
     int i;
     // go to beginning of hash bucket
     if(fseek(fp, address * BUCKETSIZE * sizeof(RECORD), SEEK_SET) != 0)
@@ -158,15 +159,16 @@ void insert_record(RECORD rec, FILE* fp)
         printf("Fatal seek error! Abort!\n");
         exit(4);
     }
+
     // find first available slot in the bucket.
     for(i = 0; i < BUCKETSIZE; i++)
     {
         fread(&detect, sizeof(RECORD), 1, fp);
-        if(detect.studentId == '\0')  // available slot
+        if(*detect.firstname == '\0')  // available slot
         {
             fseek(fp, -1L * sizeof(RECORD), SEEK_CUR);
             fwrite(&rec, sizeof(RECORD), 1, fp);
-            printf("Record: %s :added to bucket %ld.\n", rec.studentId, address);
+            printf("Record: %d :added to bucket %ld.\n", rec.studentId, address);
             return; // nothing left to do
         }
     }
@@ -179,13 +181,14 @@ void insert_record(RECORD rec, FILE* fp)
         {
             fseek(fp, -1L * sizeof(RECORD), SEEK_CUR);
             fwrite(&rec, sizeof(RECORD), 1, fp);
-            printf("Record: %s : added to the overflow slot %d.\n", rec.studentId, i);
+            printf("Record: %d : added to the overflow slot %d.\n", rec.studentId, i);
             return; // nothing left to do
         }
     }
     // item not inserted!
-    printf("Hash table overflow! Abort!\n");
+    printf("Error: Hash table overflow! Abort!\n");
     exit(5);
+
 }
 
 /******************************************************

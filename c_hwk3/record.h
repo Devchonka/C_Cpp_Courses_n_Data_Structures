@@ -5,9 +5,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 
-#define TABSIZE 100
+#define TABSIZE 31
 #define OFLOWSIZE 100
 #define BUCKETSIZE 4 // structs per bucket
 
