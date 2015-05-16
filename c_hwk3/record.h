@@ -1,3 +1,8 @@
+/**
+Record.h
+File that contains all files related to the RECORD struct and its validation.
+*/
+
 #ifndef RECORD_H
 #define RECORD_H
 
@@ -6,10 +11,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
-
-#define TABSIZE 31
-#define OFLOWSIZE 100
+#define TABSIZE 20
 #define BUCKETSIZE 4 // structs per bucket
 
 typedef struct record RECORD;
@@ -28,10 +32,13 @@ bool validate_studentID(char*);
 bool validate_amount(char*);
 RECORD get_rec_from_valid_line(char*);
 
-long hash_func (int, int); // hash by student ID
+long hash_func(int, int);  // hash by student ID
 FILE* create_hash_file(char*);
 
-void insert_record(RECORD, FILE*);
-void search_record(char*, long, FILE*);
+bool insert_record(RECORD, FILE*);
+bool delete_record(unsigned, long, FILE*);
+bool search_record(RECORD*, long*, FILE*);
+void print_rec_at_address(RECORD*);
+void print_all_records(FILE*);
 
 #endif // RECORD_H

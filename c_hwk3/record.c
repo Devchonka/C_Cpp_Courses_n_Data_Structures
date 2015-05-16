@@ -1,3 +1,6 @@
+/**
+record.c - file that contains all the source code for the record.h file.
+*/
 #include "record.h"
 
 /*****
@@ -14,10 +17,8 @@ RECORD get_rec_from_valid_line(char line[])
     strcpy(rec.firstname, strtok(NULL,"\040\t"));
     strcpy(rec.lastname, strtok(NULL,"\040\t"));
     rec.amount = atof(strtok(NULL,"\040\t"));
-
     return rec;
 }
-
 
 /**
 Function validate_new_record. Takes in a line, breaks it down to tokens, and if there are exactly 4 entries, it
@@ -43,15 +44,23 @@ bool validate_new_record(char* record_line)
         valid = (validArray[0] && validArray[1] && validArray[2] && validArray[3]);
     }
     else
+    {
         printf("Please type in exactly 4 words: studentID FirstName LastName Amount");
+    }
     return valid;
 }
 
+/*
+ Function to ensure only allowed characters are validated.
+*/
 bool has_only_allowed(char* string, char* allowed)
 {
     return !(strspn(string, allowed)<strlen(string));
 }
 
+/*
+Function that ensures that teh name contains only alphabetic characters.
+*/
 bool validate_name(char* name)
 {
     bool valid = strcmp(name, " ");
@@ -63,11 +72,14 @@ bool validate_name(char* name)
     }
     if(!valid)
     {
-        printf("Error: Student names must be typed using English alphabet letters only.\n");
+        printf("\n\tError: Student names must be typed using English alphabet letters only.\n");
     }
     return valid;
 }
 
+/*
+Function to ensure student ID is exactly 4 letters.
+*/
 bool validate_studentID(char* id)
 {
     bool valid = (strlen(id)==4);
@@ -77,11 +89,14 @@ bool validate_studentID(char* id)
     }
     if(!valid)
     {
-        printf("Error: Student IDs must be typed using 4 digits only.\n");
+        printf("\n\tError: Student IDs must be typed using 4 digits only.\n");
     }
     return valid;
 }
 
+/*
+Function to ensure that the dollar amount is valid to 2 decimal places, and contains digits only.
+*/
 bool validate_amount(char* amount)
 {
     bool valid = has_only_allowed(amount, "0123456789.");
@@ -97,7 +112,7 @@ bool validate_amount(char* amount)
     }
     if(!valid)
     {
-        printf("Error: Financial aid amount must be $10.00-99999.99 (2 digits after decimal point).\n");
+        printf("\n\tError: Financial aid amount must be $10.00-99999.99 (2 digits after decimal point).\n");
     }
     return valid;
 }
@@ -111,9 +126,8 @@ HASHING TO DISK RECORD FUNCTIONS
 */
 long hash_func(int key, int hashTable_size)
 {
-    long address = 0;
-    address = pow(key,3) + key - 23;
-    return address % hashTable_size;
+    long address = key * 2654435761;
+    return address% hashTable_size;
 }
 
 /********************************************************
@@ -123,10 +137,9 @@ FILE* create_hash_file(char* filename)
 {
     FILE* fp;
     RECORD hashtable[TABSIZE][BUCKETSIZE] = {{""}};
-    RECORD overflow[OFLOWSIZE] = {""};
     if((fp = fopen(filename, "w+b")) == NULL)
     {
-        printf("Error: Could not open file %s.\n", filename);
+        printf("\n\tError: Could not open file %s.\n", filename);
         exit(1);
     }
     // check for write errors just to be safe.
@@ -135,31 +148,39 @@ FILE* create_hash_file(char* filename)
         printf("Hash table could not be created. Abort!\n");
         exit(2);
     }
-    if(fwrite(overflow, sizeof(RECORD), OFLOWSIZE, fp) < OFLOWSIZE)
-    {
-        printf("Could not create overflow area. Abort!\n");
-        exit(3);
-    }
     rewind(fp);
     return fp;
+}
+
+/*
+Function to make a string into an upper characters string.
+*/
+void make_toUpper(char str[][21])
+{
+    int i=0;
+    while(*str[i])
+    {
+        *str[i] = toupper(*str[i]);
+        i++;
+    }
 }
 
 /******************************************************
    Hashing to Disk: Insert
 */
-void insert_record(RECORD rec, FILE* fp)
+bool insert_record(RECORD rec, FILE* fp)
 {
     RECORD detect;
     long address = hash_func(rec.studentId, TABSIZE);
-
+    make_toUpper(&rec.firstname);
+    make_toUpper(&rec.lastname);
     int i;
     // go to beginning of hash bucket
     if(fseek(fp, address * BUCKETSIZE * sizeof(RECORD), SEEK_SET) != 0)
     {
-        printf("Fatal seek error! Abort!\n");
+        printf("\n\tError: Fatal seek error! Abort!\n");
         exit(4);
     }
-
     // find first available slot in the bucket.
     for(i = 0; i < BUCKETSIZE; i++)
     {
@@ -169,66 +190,96 @@ void insert_record(RECORD rec, FILE* fp)
             fseek(fp, -1L * sizeof(RECORD), SEEK_CUR);
             fwrite(&rec, sizeof(RECORD), 1, fp);
             printf("Record: %d :added to bucket %ld.\n", rec.studentId, address);
-            return; // nothing left to do
+            return true; // nothing left to do
         }
     }
-    // bucket full: insert into the overflow area
-    fseek(fp, TABSIZE * BUCKETSIZE * sizeof(RECORD), SEEK_SET);
-    for(i = 0; i < OFLOWSIZE; i++)
-    {
-        fread(&detect, sizeof(RECORD), 1, fp);
-        if(detect.studentId == '\0')  // available slot
-        {
-            fseek(fp, -1L * sizeof(RECORD), SEEK_CUR);
-            fwrite(&rec, sizeof(RECORD), 1, fp);
-            printf("Record: %d : added to the overflow slot %d.\n", rec.studentId, i);
-            return; // nothing left to do
-        }
-    }
-    // item not inserted!
-    printf("Error: Hash table overflow! Abort!\n");
-    exit(5);
-
+    printf("\n\tError: Destined hash bucket %ld is full, entry %d not inserted!\n", address, rec.studentId);
+    return false;
 }
 
-/******************************************************
-   Hashing to Disk: Search
-
-void search_record(char *key, long address, FILE *fp)
+/*
+Function to search for and delete a record already given its address.
+*/
+bool delete_record(unsigned studentId_2_delete, long address, FILE* fp)
 {
-    RECORD detect, temp;
+    RECORD detect;
     int i;
-
-    if (fseek(fp, address * BUCKETSIZE * sizeof (RECORD), SEEK_SET) != 0)
+    // go to beginning of hash bucket
+    if(fseek(fp, address * BUCKETSIZE * sizeof(RECORD), SEEK_SET) != 0)
     {
-        printf("Fatal seek error! Abort");
+        printf("\n\tError: Fatal seek error! Abort!\n");
+        exit(4);
+    }
+    // find first available slot in the bucket.
+    for(i = 0; i < BUCKETSIZE; i++)
+    {
+        fread(&detect, sizeof(RECORD), 1, fp);
+        if(detect.studentId == studentId_2_delete)  // right one to delete
+        {
+            detect.studentId=0;
+            detect.firstname[0] ='\0';
+            detect.lastname[0] = '\0';
+            detect.amount = 0.00;
+            fseek(fp, -1L * sizeof(RECORD), SEEK_CUR);
+            fwrite(&detect, sizeof(RECORD), 1, fp);
+            printf("Record: %d :deleted from bucket %ld.\n", studentId_2_delete, address);
+            return true; // nothing left to do
+        }
+    }
+    printf("\n\tError: Destined hash bucket %ld does not have the searched record!\n", address);
+    return false;
+}
+
+/*
+Function to print just one record given a pointer to the record.
+*/
+void print_rec_at_address(RECORD* rec)
+{
+    printf("%d %s %s %.2lf\n", rec->studentId, rec->firstname, rec->lastname, rec->amount);
+}
+/******************************************************
+   Hashing to Disk: Search. The function returns a true is found, false otherwise. The function returns a pointer
+   to the found record and its address.
+*/
+bool search_record(RECORD* rec, long* address, FILE* fp)
+{
+    *address = hash_func(rec->studentId, TABSIZE);
+    RECORD detect;
+    int i;
+    if(fseek(fp, *address * BUCKETSIZE * sizeof(RECORD), SEEK_SET) != 0)
+    {
+        printf("\n\tError: Fatal seek error! Abort");
         exit(4);
     }
     // find first available slot in bucket
-    for (i = 0; i < BUCKETSIZE; i++)
+    for(i = 0; i < BUCKETSIZE; i++)
     {
-        fread(&detect, sizeof (RECORD), 1, fp);
-        if (strcmp(detect.key, key) == 0) // found it!
+        fread(&detect, sizeof(RECORD), 1, fp);
+        if(rec->studentId == detect.studentId)  // found it!
         {
-            printf("\t%s found \n\tat hash bucket %ld.\n", key, address);
-            printf("\tRandom number is %d\n", detect.num);
-            return; // nothing left to do
+            printf("\t%d found \n\tat hash bucket %ld.\n", detect.studentId, *address);
+            return true; // nothing left to do
         }
     }
-    // check the overflow area
-    fseek(fp, TABSIZE * BUCKETSIZE * sizeof (RECORD), SEEK_SET);
-    for (i = 0; i < OFLOWSIZE; i++)
-    {
-        fread(&detect, sizeof (RECORD), 1, fp);
-        if (strcmp(detect.key, key) == 0) // found it!
-        {
-            printf("\t%s found in overflow area.\n", key);
-            printf("\tRandom number is %d\n", detect.num);
-            return; // nothing left to do
-        }
-    }
-    // not found
-    printf("Recors with key: %s : not found.\n", key);
-    return;
+    printf("Records with key: %d : not found.\n", rec->studentId);
+    return false;
 }
+/*
+Function to print all records in the file.
 */
+void print_all_records(FILE* fp)
+{
+    fseek(fp, 0, SEEK_END);
+    long file_size = ftell(fp);
+    rewind(fp);
+    int i;
+    RECORD detect;
+    while(ftell(fp)!=file_size)
+    {
+        fread(&detect, sizeof(RECORD), 1, fp);
+        if(detect.studentId != 0)
+        {
+            print_rec_at_address(&detect);
+        }
+    }
+}
