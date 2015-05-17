@@ -15,9 +15,8 @@ class RegEx_Utility
 private:
     std::string _contents;
 public:
-    RegEx_Utility(std::string contents): _contents(contents){};
-    ~RegEx_Utility(){};
-    void set_contents(std::string);
+    RegEx_Utility(std::string contents): _contents(contents) {};
+    ~RegEx_Utility() {};
     std::vector<std::string> extract_substring(std::string);
 };
 

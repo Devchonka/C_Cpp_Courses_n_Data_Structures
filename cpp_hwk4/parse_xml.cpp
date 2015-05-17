@@ -18,8 +18,8 @@ vector<string> RegEx_Utility::extract_substring(string class_name)
     vector<string> results_str;
     smatch results;
     for(sregex_iterator i = sregex_iterator(_contents.begin(), _contents.end(), r);
-        i != std::sregex_iterator();
-        ++i )
+            i != std::sregex_iterator();
+            ++i)
     {
         std::smatch m = *i;
         //cout << m[1] << endl;
