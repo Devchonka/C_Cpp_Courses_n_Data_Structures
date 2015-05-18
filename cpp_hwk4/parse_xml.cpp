@@ -1,6 +1,5 @@
 #include "parse_xml.h"
 
-
 using namespace std;
 
 string read_file(const string fname)
