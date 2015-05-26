@@ -30,15 +30,14 @@ vector<string> RegEx_Utility::extract_substring(string class_name)
 void Location_Keeper::create_location_nodes()
 {
     RegEx_Utility regex_util(read_file(_fname));
-    _location_strings = regex_util.extract_substring("Location");
+    std::vector<std::string> _location_strings = regex_util.extract_substring("Location");
     const int num_locations = _location_strings.size();
     _location_nodes.resize(num_locations);
     string temp;
-
     for(int loc_count =0; loc_count< num_locations; loc_count++)
     {
         regex_util.set_contents(_location_strings[loc_count]);
-        for(int field_count =0; field_count<_xml_keywords.size(); field_count++)
+        for(unsigned field_count =0; field_count<_xml_keywords.size(); field_count++)
         {
             temp = regex_util.extract_substring(_xml_keywords[field_count])[0];
             if(field_count<4)

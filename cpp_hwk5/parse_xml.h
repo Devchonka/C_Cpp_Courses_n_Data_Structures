@@ -29,20 +29,19 @@ class Location_Keeper
 private:
     std::string _fname;
     std::vector<std::string> _xml_keywords;
-    std::vector<std::string> _location_strings;
-    std::vector<Location_Node> _location_nodes;
+    std::vector<Location_Node> _location_nodes; // the only valuable thing to the user
 
 public:
     Location_Keeper(std::string fname): _fname(fname), \
     _xml_keywords({"Address", "City", "State", "Phone", "Latitude", "Longitude"}), \
-    _location_strings({}), _location_nodes({}){};
+    _location_nodes({}){};
     ~Location_Keeper() {};
 
     void create_location_nodes();
     void print_location_nodes();
-    int get_num_locations()
+    std::vector<Location_Node> get_location_nodes()
     {
-        return _location_nodes.size();
+        return _location_nodes;
     }
 };
 
