@@ -124,9 +124,10 @@ void Graph::print_adjMatrix(void)
 void Graph::print_vertices()
 {
     cout<<endl;
-    for(Location_Node node: _vertices)
+    for(auto it = _vertices.begin(); it != _vertices.end();  ++it)
     {
-        node.print_node();
+        cout<< "Node #" << distance(_vertices.begin(), it) << ": " ;
+        it->print_node();
     }
 }
 

@@ -96,9 +96,8 @@ public: //_num_vertices(_vertices.size()),
     }
 
     void build_edges();
-    //add edge
     void addEdge(int, int, int weight = 1);
-    //print graph
+
     void print_adjMatrix();
     void print_vertices();
 
