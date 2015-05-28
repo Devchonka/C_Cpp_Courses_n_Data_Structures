@@ -3,74 +3,70 @@
 #include <queue>
 #include <vector>
 #include <iostream>
+#include <climits>
 
 #include "graph.h"
 
 using namespace std;
-#define MAX 100001
-#define INF (1<<20)
-#define pii pair< int, int >
-#define pb(x) push_back(x)
 
-// lambda expression
-auto comp = [](const pii &a, const pii &b) -> bool { return a < b; };
-priority_queue<pii, vector<pii > , decltype(comp) > Q(comp);
-
-
-vector<pii > G[MAX];
-int D[MAX];
-bool F[MAX];
-
-int MST_Utility::Dijkstra()
+void MST_Utility::set_src(int src)
 {
-    int i, u, v, w, sz, nodes, edges, starting;
-    // create graph
-    cout << "Enter the number of vertices and edges: ";
-    cin >> nodes >> edges;
-    cout << "Enter the edges with weigth: <source> <destination> <weigth>: \n";
-    for(i = 0; i < edges; i++)
+    _src = src;
+}
+
+/**
+    Function to print distance vector.
+*/
+void MST_Utility::printSolution(vector<int> dist)
+{
+    for(int i = 0; i < _num_vertices; i++)
     {
-        cin >> u >> v >> w;
-        G[u].pb(pii(v, w));
-        G[v].pb(pii(u, w)); // for undirected
+        cout<<"Node #: " << i<< " Dist from Source: "<< dist[i] << endl;
     }
-    cout << "Enter the source node: ";
-    cin >> starting;
-    // initialize distance vector
-    for(i = 1; i <= nodes; i++)
-    {
-        D[i] = INF;
-    }
-    D[starting] = 0;
-    Q.push(pii(starting, 0));
-    // dijkstra
-    while(!Q.empty())
-    {
-        u = Q.top().first;
-        Q.pop();
-        if(F[u])
+}
+
+/**
+    Function returns index of min value that is not yet included in the MST included set
+*/
+int MST_Utility::minDistance(vector<int> dist, vector<bool> included_set)
+{
+    int min_weight = INT_MAX, min_index;
+    for(int v = 0; v < _num_vertices; v++)
+        if(included_set[v] == false && dist[v] <= min_weight)
         {
-            continue;
+            min_weight = dist[v], min_index = v;
         }
-        sz = G[u].size();
-        for(i = 0; i < sz; i++)
+    return min_index;
+}
+
+vector<int> MST_Utility::Dijkstra()
+{
+    vector<int> dist(_num_vertices, INT_MAX);  // all distances start infinite
+    vector<bool> sptSet(_num_vertices, 0); // holds true if included in shortest path (shortest path tree set)
+    dist[_src] = 0; // dist from source to itself
+    int u;
+    for(int count = 0; count < _num_vertices-1; count++)
+    {
+        u = minDistance(dist, sptSet);
+        sptSet[u] = true; // mark vertex as visited
+        for(int v = 0; v < _num_vertices; v++)  // Update dist value of the adjacent vertices of the picked vertex.
         {
-            v = G[u][i].first;
-            w = G[u][i].second;
-            if(!F[v] && D[u] + w < D[v])
+            if(!sptSet[v] && (_AdjMatrix[u][v] || _AdjMatrix[v][u]) && dist[u] != INT_MAX  // update if not in sptSet, theres an edge u to v
+                    && dist[u]+_AdjMatrix[u][v] < dist[v]) // also if total weight of path src to v thru u < current dist[v]
             {
-                D[v] = D[u] + w;
-                Q.push(pii(v, D[v]));
+                dist[v] = dist[u] + _AdjMatrix[u][v]; // NEVER GETTING HERE!!!XXX
+                cout<<dist[v]<<endl;
             }
         }
-        F[u] = 1; // done with u
     }
-    // result
-    for(i = 1; i <= nodes; i++)
-    {
-        cout << "Node " << i << ", min weight = " << D[i] << endl;
-    }
-    return 0;
+    return dist;
+}
+
+void Graph::run_MST(int src)
+{
+    _mst_util.set_src(src);
+    vector<int> temp = _mst_util.Dijkstra();
+    //_mst_util.printSolution(temp);
 }
 
 /**

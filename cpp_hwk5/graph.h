@@ -65,11 +65,29 @@ public:
 
 class MST_Utility
 {
+private:
+    std::vector < std::vector < int > > _AdjMatrix;
+    int _src; // starting node
+    int _num_vertices;
 public:
-    MST_Utility() {};
+    MST_Utility(): _AdjMatrix({}), _src(0), _num_vertices(0){};
+    MST_Utility(std::vector < std::vector < int > > AdjMatrix, int src): _AdjMatrix(AdjMatrix), _src(src), \
+                                                            _num_vertices(_AdjMatrix[0].size()){};
     ~MST_Utility() {};
 
-    int Dijkstra(); // should make static?
+    void init(std::vector < std::vector < int > > AdjMatrix, int src)
+    {
+        _AdjMatrix = AdjMatrix;
+        _src = src;
+        _num_vertices = _AdjMatrix[0].size();
+    }
+
+    void set_src(int);
+
+    std::vector<int> Dijkstra(); // should make static?
+    int minDistance(std::vector<int>, std::vector<bool>);
+
+    void printSolution(std::vector<int>);
 };
 
 class Graph
@@ -77,7 +95,7 @@ class Graph
 private:
     std::vector<Location_Node> _vertices;
     std::vector < std::vector < int > > _AdjMatrix;
-    MST_Utility _mst_util;
+    MST_Utility _mst_util; //intentional strong coupling here
 
     void init(); // initialize all edges to zero
 
@@ -90,9 +108,11 @@ protected:
     double get_dist(Location_Node&, Location_Node&);
 
 public: //_num_vertices(_vertices.size()),
-    Graph(std::vector<Location_Node> vertices) : _vertices(vertices),  _AdjMatrix({}), _mst_util()
+    Graph(std::vector<Location_Node> vertices)
     {
+        _vertices = vertices;
         init();
+        _mst_util.init(_AdjMatrix, 0);
     }
 
     void build_edges();
@@ -100,6 +120,8 @@ public: //_num_vertices(_vertices.size()),
 
     void print_adjMatrix();
     void print_vertices();
+
+    void run_MST(int); // takes in starting node
 
     int get_num_vertices();
     int get_num_edges();
