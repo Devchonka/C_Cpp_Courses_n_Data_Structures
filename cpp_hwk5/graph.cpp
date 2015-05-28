@@ -17,20 +17,21 @@ void MST_Utility::set_src(int src)
 /**
     Function to print distance vector.
 */
-void MST_Utility::printSolution(vector<int> dist)
+void MST_Utility::printSolution(vector<double> dist)
 {
     for(int i = 0; i < _num_vertices; i++)
     {
-        cout<<"Node #: " << i<< " Dist from Source: "<< dist[i] << endl;
+        cout<<"Node #" << i<< "   Dist along entire path: "<< setprecision(1)<<fixed<<dist[i] << endl;
     }
 }
 
 /**
     Function returns index of min value that is not yet included in the MST included set
 */
-int MST_Utility::minDistance(vector<int> dist, vector<bool> included_set)
+int MST_Utility::minDistance(vector<double> dist, vector<bool> included_set)
 {
-    int min_weight = INT_MAX, min_index;
+    double min_weight = DBL_MAX;
+    int min_index;
     for(int v = 0; v < _num_vertices; v++)
         if(included_set[v] == false && dist[v] <= min_weight)
         {
@@ -39,34 +40,41 @@ int MST_Utility::minDistance(vector<int> dist, vector<bool> included_set)
     return min_index;
 }
 
-vector<int> MST_Utility::Dijkstra()
+vector<double> MST_Utility::Dijkstra()
 {
-    vector<int> dist(_num_vertices, INT_MAX);  // all distances start infinite
+    vector<double> dist(_num_vertices, DBL_MAX);  // all distances start infinite
     vector<bool> sptSet(_num_vertices, 0); // holds true if included in shortest path (shortest path tree set)
+    vector<int> SPT_indices;
     dist[_src] = 0; // dist from source to itself
     int u;
-    for(int count = 0; count < _num_vertices-1; count++)
+    for(int count = 0; count < _num_vertices; count++)
     {
-        u = minDistance(dist, sptSet);
+        u = minDistance(dist, sptSet); // returns min element index
         sptSet[u] = true; // mark vertex as visited
+        SPT_indices.push_back(u);
         for(int v = 0; v < _num_vertices; v++)  // Update dist value of the adjacent vertices of the picked vertex.
         {
-            if(!sptSet[v] && (_AdjMatrix[u][v] || _AdjMatrix[v][u]) && dist[u] != INT_MAX  // update if not in sptSet, theres an edge u to v
+            if(!sptSet[v] && (_AdjMatrix[u][v]) && (dist[u] < DBL_MAX)   // update if not in sptSet, theres an edge u to v
                     && dist[u]+_AdjMatrix[u][v] < dist[v]) // also if total weight of path src to v thru u < current dist[v]
             {
-                dist[v] = dist[u] + _AdjMatrix[u][v]; // NEVER GETTING HERE!!!XXX
-                cout<<dist[v]<<endl;
+                dist[v] = dist[u] + _AdjMatrix[u][v];
             }
         }
     }
+    cout<<"\nSPT INCLUDED INDICES: "<<endl;
+    for(const int &i : SPT_indices)  // access by const reference
+    {
+        std::cout << i << ' ';
+    }
+    std::cout << '\n';
     return dist;
 }
 
 void Graph::run_MST(int src)
 {
     _mst_util.set_src(src);
-    vector<int> temp = _mst_util.Dijkstra();
-    //_mst_util.printSolution(temp);
+    vector<double> temp = _mst_util.Dijkstra();
+    _mst_util.printSolution(temp);
 }
 
 /**
@@ -88,10 +96,10 @@ void Graph::init(void)
     int num_vertices = _vertices.size();
     for(unsigned i = 0; i < num_vertices; i++)
     {
-        std::vector < int > row;
+        std::vector < double > row;
         for(unsigned j = 0; j < num_vertices; j++)
         {
-            row.push_back(0);
+            row.push_back(0.0);
         }
         _AdjMatrix.push_back(row);
     }
@@ -111,10 +119,11 @@ void Graph::print_adjMatrix(void)
         cout << std::setw(3) << std::right <<i << " ";
         for(unsigned j = 0; j < _AdjMatrix[i].size(); j++)
         {
-            cout << std::setw(3) << std::right << _AdjMatrix[i][j] << " ";
+            cout << std::setw(3) << std::right << setprecision(0)<<fixed<<_AdjMatrix[i][j] << " ";
         }
         cout << endl;
     }
+    cout << endl;
 }
 
 void Graph::print_vertices()
@@ -122,7 +131,7 @@ void Graph::print_vertices()
     cout<<endl;
     for(auto it = _vertices.begin(); it != _vertices.end();  ++it)
     {
-        cout<< "Node #" << distance(_vertices.begin(), it) << ": " ;
+        cout<< "Node #" << distance(_vertices.begin(), it) << ": ";
         it->print_node();
     }
 }
@@ -138,10 +147,10 @@ int Graph:: get_num_edges()
     return num_vertices * (num_vertices-1) / 2;
 }
 
-void Graph::addEdge(int from, int to, int weight)
+void Graph::addEdge(int from, int to, double weight)
 {
     _AdjMatrix[from][to] = weight;
-    //_AdjMatrix[to][from] = weight;
+    _AdjMatrix[to][from] = weight;
 }
 void Graph::build_edges()
 {
@@ -157,4 +166,5 @@ void Graph::build_edges()
         }
         //cout<<endl;
     }
+    _mst_util.init(_AdjMatrix, 0); // initialize MST utility with new adjacency matrix
 }

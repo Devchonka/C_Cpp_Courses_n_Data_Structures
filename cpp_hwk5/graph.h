@@ -12,11 +12,10 @@
 #include <vector>
 #include <iomanip>
 #include <cmath>
+#include <cfloat> // for DBL_MAX
 
 using std::cout;
 using std::endl;
-
-int dijksta();
 
 class Location_Node
 {
@@ -66,16 +65,16 @@ public:
 class MST_Utility
 {
 private:
-    std::vector < std::vector < int > > _AdjMatrix;
+    std::vector < std::vector < double > > _AdjMatrix;
     int _src; // starting node
     int _num_vertices;
 public:
     MST_Utility(): _AdjMatrix({}), _src(0), _num_vertices(0){};
-    MST_Utility(std::vector < std::vector < int > > AdjMatrix, int src): _AdjMatrix(AdjMatrix), _src(src), \
+    MST_Utility(std::vector < std::vector < double > > AdjMatrix, int src): _AdjMatrix(AdjMatrix), _src(src), \
                                                             _num_vertices(_AdjMatrix[0].size()){};
     ~MST_Utility() {};
 
-    void init(std::vector < std::vector < int > > AdjMatrix, int src)
+    void init(std::vector < std::vector < double > > AdjMatrix, int src)
     {
         _AdjMatrix = AdjMatrix;
         _src = src;
@@ -84,17 +83,17 @@ public:
 
     void set_src(int);
 
-    std::vector<int> Dijkstra(); // should make static?
-    int minDistance(std::vector<int>, std::vector<bool>);
+    std::vector<double> Dijkstra(); // should make static?
+    int minDistance(std::vector<double>, std::vector<bool>);
 
-    void printSolution(std::vector<int>);
+    void printSolution(std::vector<double>);
 };
 
 class Graph
 {
 private:
     std::vector<Location_Node> _vertices;
-    std::vector < std::vector < int > > _AdjMatrix;
+    std::vector < std::vector < double > > _AdjMatrix;
     MST_Utility _mst_util; //intentional strong coupling here
 
     void init(); // initialize all edges to zero
@@ -108,15 +107,14 @@ protected:
     double get_dist(Location_Node&, Location_Node&);
 
 public: //_num_vertices(_vertices.size()),
-    Graph(std::vector<Location_Node> vertices)
+    Graph(std::vector<Location_Node> vertices): _vertices(vertices)
     {
         _vertices = vertices;
         init();
-        _mst_util.init(_AdjMatrix, 0);
     }
 
     void build_edges();
-    void addEdge(int, int, int weight = 1);
+    void addEdge(int, int, double weight = 1.0);
 
     void print_adjMatrix();
     void print_vertices();

@@ -13,9 +13,9 @@ int main()
     Graph loc_web(loc_database.get_location_nodes());
     //loc_web.print_vertices();
     loc_web.build_edges();
-    //loc_web.print_adjMatrix();
+    loc_web.print_adjMatrix();
 
-    int start_node = 2;
+    int start_node = 1;
     loc_web.run_MST(start_node);
 
     return 0;
