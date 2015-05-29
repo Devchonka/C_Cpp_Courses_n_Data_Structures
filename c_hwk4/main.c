@@ -12,15 +12,13 @@
 **
     Procedure:
     1) Create a user menu following requirements given
-    2) Write on/off masks for flipping bits for options 1-8 of the menu
-    3)
-
-    ...
-    x) Check memory leak detection using VALGRIND
+    2) Write on/off masks for flipping selected bits on and off for options 1-8
+    3) Add in macros, strtok and strtol
+    4) Write overlay function for option 9
 
     To compile code:
         gcc -std=c99  *.h *.c -o c_hwk4
-    To check memory leaks with Valgrind:
+    To check memory leaks with Valgrind: - no dynamic allocations in this code
         valgrind --tool=memcheck --leak-check=yes ./c_hwk4
 ************************************************************************/
 
@@ -29,12 +27,18 @@
 #include <string.h>
 #include <stdbool.h>
 
-// USE MACROS AND INLINE ALSO SEPARATE BITS BY 4 BITS EACH! SHE GIVES EXAMPLES
-// macros to do bit shifting
+// Defining MACROs to deal with common operations
+#define GET_USER_LINE(line) if(!fgets(line, sizeof(line), stdin)) {\
+            printf("\n\tError: Error getting user choice input.\n"); exit(1);}
+
+#define DELETE_NEWLINE(line) if(line[0] != '\n'){\
+            line[strlen(line)-1] = '\0';}
 
 void user_menu(unsigned short*);
 char get_user_choice();
-void turn_bits_onoff(unsigned short*, int, int, bool); // pg 173, 174, 175
+void turn_bits_onoff(unsigned short*, int, int, bool);
+void overlay(unsigned short*, int, int, unsigned short);
+unsigned short get_user_overlay(int*, int*);
 
 void printbits(unsigned short);
 
@@ -53,6 +57,7 @@ void user_menu(unsigned short* pLights)
     char choice;
     do
     {
+        printf("\nCurrent Light Configuration: ");
         printbits(*pLights);
         choice = get_user_choice();
         switch(choice)
@@ -117,7 +122,11 @@ void user_menu(unsigned short* pLights)
         {
             putchar('\n');
             printf("*****Option 9: Overlay on/off pattern onto light configuration.*****\n");
-            // do stuff..
+            int startBit =0, numBits =0;
+            int* pStartBit = &startBit;
+            int* pNumBits = &numBits;
+            unsigned short pattern = get_user_overlay(pStartBit, pNumBits);
+            overlay(pLights, *pStartBit, *pNumBits, pattern);
             break;
         }
         case '0':
@@ -125,7 +134,7 @@ void user_menu(unsigned short* pLights)
         default:
         {
             printf("\n\tError: Error in options of the user menu.\n");
-            exit(EXIT_FAILURE);
+            exit(1);
         }
         }
     }
@@ -154,14 +163,8 @@ char get_user_choice()
         printf("   9. Overlay on/off pattern onto light configuration.\n");
         printf("   10. Quit.\n");
         printf("\nEnter an option (1, 2, 3, ... 10) : ");
-        if(!fgets(line, LINE_SIZE, stdin))
-        {
-            printf("\n\tError: Error getting user choice input.\n");
-        }
-        if(line[0] != '\n')
-        {
-            line[strlen(line)-1] = '\0'; // get rid of newline
-        }
+        GET_USER_LINE(line);
+        DELETE_NEWLINE(line);
         if((strcmp(line, "0")==0) || ((strcmp(line, "10")!=0) && strlen(line)>1))
         {
             strcpy(line, "x");
@@ -197,13 +200,14 @@ void turn_bits_onoff(unsigned short* pLights, int numBits, int startBit, bool on
 */
 void printbits(unsigned short lights)
 {
-    printf("\nCurrent Light Configuration: ");
     int  testbit(unsigned short lights, int bit_to_test);
     int i;
     for(i = 15; i >= 0; i--)
     {
-        if (!((i+1) % 4))
+        if(!((i+1) % 4))
+        {
             printf(" ");
+        }
         printf("%1d", testbit(lights, i));
     }
     printf("\n");
@@ -217,4 +221,36 @@ int  testbit(unsigned short lights, int bit_to_test)
     lights >>= bit_to_test;
     lights &= 1;
     return lights;
+}
+
+/**
+   Overlaying a bit pattern on a range of bits
+*/
+void overlay(unsigned short* pLights, int startBit, int numBits, unsigned short pattern)
+{
+    printf("\nStart at bit #%d and overlay the right-most %d bits from pattern:\n\t", startBit, numBits);
+    printbits(pattern);
+    *pLights &= ~(~((unsigned short) ~0 << numBits) << startBit);
+    *pLights |= pattern << startBit;
+}
+
+unsigned short get_user_overlay(int* startBit, int* numBits)
+{
+    char line[LINE_SIZE];
+    do
+    {
+        printf("Enter bit pattern and starting bit for the overlay (ie 1001 3): ");
+        GET_USER_LINE(line);
+        DELETE_NEWLINE(line);
+
+        char *endpointer;
+        int n = (int) strtol(line, &endpointer, 2); // should be correct
+        printf("%d\n", n);
+    }
+    while(true);
+    printf("%s\n", line);
+    unsigned short pattern = 1101;
+    *startBit = 5;
+    *numBits = 5;
+    return pattern;
 }
