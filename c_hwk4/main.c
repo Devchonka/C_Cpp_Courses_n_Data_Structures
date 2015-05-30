@@ -31,19 +31,39 @@
 #define GET_USER_LINE(line) if(!fgets(line, sizeof(line), stdin)) {\
             printf("\n\tError: Error getting user choice input.\n"); exit(1);}
 
-#define DELETE_NEWLINE(line) if(line[0] != '\n'){\
-            line[strlen(line)-1] = '\0';}
+#define DELETE_NEWLINE(line) if(line[0] != '\n'){line[strlen(line)-1] = '\0';}
 
+#define PATTERN_IN_BOUNDS(numBits, startBit) ((16-startBit)>= numBits)
+
+/**
+    A constant table of user options for the menu. Declared globally for potential to reuse it,
+    thus const char* const for safety.
+*/
+const char* const OptionsTable[]  =
+{
+    "   1. Turn on all lights.",
+    "   2. Turn on stage lights (lights 5-10).",
+    "   3. Turn on left stage lights (lights 11-15).",
+    "   4. Turn on right stage lights (lights 0-4).",
+    "   5. Turn off all lights.",
+    "   6. Turn off center stage lights.",
+    "   7. Turn off left stage lights.",
+    "   8. Turn off right stage lights.",
+    "   9. Overlay on/off pattern onto light configuration.",
+    "   10. Quit."
+} ;
 void user_menu(unsigned short*);
 char get_user_choice();
 void turn_bits_onoff(unsigned short*, int, int, bool);
 void overlay(unsigned short*, int, int, unsigned short);
 unsigned short get_user_overlay(int*, int*);
-
+bool validate_overlay_input(char*, int*, int*);
 void printbits(unsigned short);
+inline bool has_only_allowed(char*, char*);
 
-const int LINE_SIZE = 256;
-
+/**
+    Function main creates the lights and passes it to the repeating user menu.
+*/
 int main()
 {
     unsigned short lights = 0;
@@ -52,6 +72,10 @@ int main()
     return 0;
 }
 
+/**
+    Function user_menu to execute the choice that user selected. For option 9, in the case
+    that startBit is set to -1, the menu just recycles.
+*/
 void user_menu(unsigned short* pLights)
 {
     char choice;
@@ -64,69 +88,51 @@ void user_menu(unsigned short* pLights)
         {
         case '1':
         {
-            putchar('\n');
-            printf("*****Option 1: Turn on all lights.*****\n");
             turn_bits_onoff(pLights, 16, 0, 1);
             break;
         }
         case '2':
         {
-            putchar('\n');
-            printf("*****Option 2: Turn on center stage lights (lights 5-10).*****\n");
             turn_bits_onoff(pLights, 6, 5, 1);
             break;
         }
         case '3':
         {
-            putchar('\n');
-            printf("*****Option 3: Turn on left stage lights (lights 11-15).*****\n");
             turn_bits_onoff(pLights, 5, 11, 1);
             break;
         }
         case '4':
         {
-            putchar('\n');
-            printf("*****Option 4: Turn on right stage lights (lights 0-4).*****\n");
             turn_bits_onoff(pLights, 5, 0, 1);
             break;
         }
         case '5':
         {
-            putchar('\n');
-            printf("*****Option 5: Turn off all lights.*****\n");
             turn_bits_onoff(pLights, 16, 0, 0);
             break;
         }
         case '6':
         {
-            putchar('\n');
-            printf("*****Option 6: Turn off center stage lights.*****\n");
             turn_bits_onoff(pLights, 6, 5, 0);
             break;
         }
         case '7':
         {
-            putchar('\n');
-            printf("*****Option 7: Turn off left stage lights.*****\n");
             turn_bits_onoff(pLights, 5, 11, 0);
             break;
         }
         case '8':
         {
-            putchar('\n');
-            printf("*****Option 8: Turn off right stage lights.*****\n");
             turn_bits_onoff(pLights, 5, 0, 0);
             break;
         }
         case '9':
         {
-            putchar('\n');
-            printf("*****Option 9: Overlay on/off pattern onto light configuration.*****\n");
             int startBit =0, numBits =0;
-            int* pStartBit = &startBit;
-            int* pNumBits = &numBits;
+            int *pStartBit = &startBit, *pNumBits = &numBits;
             unsigned short pattern = get_user_overlay(pStartBit, pNumBits);
-            overlay(pLights, *pStartBit, *pNumBits, pattern);
+            if (startBit != -1)
+                overlay(pLights, *pStartBit, *pNumBits, pattern);
             break;
         }
         case '0':
@@ -146,23 +152,14 @@ void user_menu(unsigned short* pLights)
 */
 char get_user_choice()
 {
-    char choice, line[LINE_SIZE];
+    char choice, line[256];
     do
     {
-        putchar('\n');
-        printf("********* MENU ************\n");
-        putchar('\n');
-        printf("   1. Turn on all lights.\n");
-        printf("   2. Turn on stage lights (lights 5-10).\n");
-        printf("   3. Turn on left stage lights (lights 11-15).\n");
-        printf("   4. Turn on right stage lights (lights 0-4).\n");
-        printf("   5. Turn off all lights.\n");
-        printf("   6. Turn off center stage lights.\n");
-        printf("   7. Turn off left stage lights.\n");
-        printf("   8. Turn off right stage lights.\n");
-        printf("   9. Overlay on/off pattern onto light configuration.\n");
-        printf("   10. Quit.\n");
-        printf("\nEnter an option (1, 2, 3, ... 10) : ");
+        printf("\n********* MENU ************\n\n");
+        int i =0;
+        for (; i<10;i++)
+            printf("%s\n", OptionsTable[i]);
+        printf("\n\tEnter an option (1, 2, 3, ... 10) : ");
         GET_USER_LINE(line);
         DELETE_NEWLINE(line);
         if((strcmp(line, "0")==0) || ((strcmp(line, "10")!=0) && strlen(line)>1))
@@ -179,6 +176,10 @@ char get_user_choice()
     return choice;
 }
 
+/**
+    Function turn_bits_onoff returns updated lights, and takes in the number of bits selected by user,
+    and the starting bit for the modification.
+*/
 void turn_bits_onoff(unsigned short* pLights, int numBits, int startBit, bool onoff)
 {
     if(onoff)
@@ -196,7 +197,7 @@ void turn_bits_onoff(unsigned short* pLights, int numBits, int startBit, bool on
 }
 
 /**
-   This uses a trick to print an unsigned short as a string of 16 bits
+   Function printbits uses a trick to print an unsigned short as a string of 16 bits
 */
 void printbits(unsigned short lights)
 {
@@ -214,7 +215,7 @@ void printbits(unsigned short lights)
 }
 
 /**
-   Return 1 if bit_to_test is set and 0 if it is unset
+   Function testbit return 1 if bit_to_test is set and 0 if it is unset.
 */
 int  testbit(unsigned short lights, int bit_to_test)
 {
@@ -224,7 +225,7 @@ int  testbit(unsigned short lights, int bit_to_test)
 }
 
 /**
-   Overlaying a bit pattern on a range of bits
+   Function overlay overlays a bit pattern on a range of bits coming from the user.
 */
 void overlay(unsigned short* pLights, int startBit, int numBits, unsigned short pattern)
 {
@@ -234,23 +235,277 @@ void overlay(unsigned short* pLights, int startBit, int numBits, unsigned short 
     *pLights |= pattern << startBit;
 }
 
+/**
+   Function get_user_overlay obtains user preferences, returning a copy of the valid pattern.
+   The function updates values of the starting bit and the number of bits selected by the user.
+   Function sets starting bit to -1 if user entered newline to exit out of the menu option.
+*/
 unsigned short get_user_overlay(int* startBit, int* numBits)
 {
-    char line[LINE_SIZE];
+    char line[256], *endpointer;
     do
     {
         printf("Enter bit pattern and starting bit for the overlay (ie 1001 3): ");
         GET_USER_LINE(line);
         DELETE_NEWLINE(line);
-
-        char *endpointer;
-        int n = (int) strtol(line, &endpointer, 2); // should be correct
-        printf("%d\n", n);
     }
-    while(true);
-    printf("%s\n", line);
-    unsigned short pattern = 1101;
-    *startBit = 5;
-    *numBits = 5;
-    return pattern;
+    while(!validate_overlay_input(line, startBit, numBits));
+    return (unsigned short) strtol(line, &endpointer, 2);
 }
+
+/**
+    Function validate_overlay_input attempts to validate user input and update selected values
+    such as the start bit and number of bits, and line contains only the pattern.
+*/
+bool validate_overlay_input(char line[], int* startBit, int* numBits)
+{
+    if(line[0]=='\n')
+    {
+        *startBit = -1;
+       return true;
+    }
+    bool valid;
+    char temp_string[64];
+    strcpy(temp_string, line);
+    strtok(temp_string,"\040\t"); // temp_string is the bit pattern now
+    valid = has_only_allowed(temp_string, "01");
+
+    if(valid)
+    {
+        strcpy(temp_string, strtok(NULL,"\040\t")); // temp_string now holds the startBit
+        valid = has_only_allowed(temp_string, "0123456789");
+    }
+    if(valid)
+    {
+        strtok(line,"\040\t"); // tokenize pattern from line in caller function
+        *startBit = atoi(temp_string);
+        *numBits = strlen(line);
+        if (*numBits > 16 || !PATTERN_IN_BOUNDS(*numBits, *startBit))
+            valid = false;
+    }
+    if (!valid)
+        printf("Please type in bit pattern and starting bit in format such as 1101 5.\n");
+    return valid;
+}
+
+/**
+ Function has_only_allowed is used to ensure only allowed characters are validated.
+*/
+inline bool has_only_allowed(char* string, char* allowed)
+{
+    return !(strspn(string, allowed)<strlen(string));
+}
+
+/************ SAMPLE OUTPUT:
+
+Current Light Configuration:  0000 0000 0000 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 3
+Turn ON 5 bits starting at bit #11
+
+Current Light Configuration:  1111 1000 0000 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 5
+Turn OFF 16 bits starting at bit #0
+
+Current Light Configuration:  0000 0000 0000 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 2
+Turn ON 6 bits starting at bit #5
+
+Current Light Configuration:  0000 0111 1110 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 3
+Turn ON 5 bits starting at bit #11
+
+Current Light Configuration:  1111 1111 1110 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 4
+Turn ON 5 bits starting at bit #0
+
+Current Light Configuration:  1111 1111 1111 1111
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 6
+Turn OFF 6 bits starting at bit #5
+
+Current Light Configuration:  1111 1000 0001 1111
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 8
+Turn OFF 5 bits starting at bit #0
+
+Current Light Configuration:  1111 1000 0000 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 7
+Turn OFF 5 bits starting at bit #11
+
+Current Light Configuration:  0000 0000 0000 0000
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 4
+Turn ON 5 bits starting at bit #0
+
+Current Light Configuration:  0000 0000 0001 1111
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 9
+Enter bit pattern and starting bit for the overlay (ie 1001 3): BLAH BLAH
+Please type in bit pattern and starting bit in format such as 1101 5.
+Enter bit pattern and starting bit for the overlay (ie 1001 3): 1234 5
+Please type in bit pattern and starting bit in format such as 1101 5.
+Enter bit pattern and starting bit for the overlay (ie 1001 3): 11000 7
+
+Start at bit #7 and overlay the right-most 5 bits from pattern:
+	 0000 0000 0001 1000
+
+Current Light Configuration:  0000 1100 0001 1111
+
+********* MENU ************
+
+   1. Turn on all lights.
+   2. Turn on stage lights (lights 5-10).
+   3. Turn on left stage lights (lights 11-15).
+   4. Turn on right stage lights (lights 0-4).
+   5. Turn off all lights.
+   6. Turn off center stage lights.
+   7. Turn off left stage lights.
+   8. Turn off right stage lights.
+   9. Overlay on/off pattern onto light configuration.
+   10. Quit.
+
+	Enter an option (1, 2, 3, ... 10) : 9
+Enter bit pattern and starting bit for the overlay (ie 1001 3): 0 0
+
+Start at bit #0 and overlay the right-most 1 bits from pattern:
+	 0000 0000 0000 0000
+
+Current Light Configuration:  0000 1100 0001 1110
+...
+*/
