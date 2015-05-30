@@ -32,9 +32,8 @@ private:
     std::vector<Location_Node> _location_nodes; // the only valuable thing to the user
 
 public:
-    Location_Keeper(std::string fname): _fname(fname), \
-    _xml_keywords({"Address", "City", "State", "Phone", "Latitude", "Longitude"}), \
-    _location_nodes({}){};
+    Location_Keeper(std::string fname, const std::vector<std::string>& xml_keywords): _fname(fname), \
+    _xml_keywords(xml_keywords), _location_nodes({}){};
     ~Location_Keeper() {};
 
     void create_location_nodes();
@@ -44,7 +43,4 @@ public:
         return _location_nodes;
     }
 };
-
-
-
 #endif // PARSE_XML_H

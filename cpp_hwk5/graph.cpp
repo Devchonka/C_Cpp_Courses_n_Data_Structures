@@ -1,5 +1,6 @@
 //Dijkstra's algorithm
 #include <cstdio>
+#include <iomanip>
 #include <queue>
 #include <vector>
 #include <iostream>
@@ -17,21 +18,25 @@ void MST_Utility::set_src(int src)
 /**
     Function to print distance vector.
 */
-void MST_Utility::printSolution(vector<double> dist)
+void MST_Utility::printSolution(PRIORITY_Q& spt_pairs, const vector<Location_Node>& vertices)
 {
-    for(int i = 0; i < _num_vertices; i++)
+    while(!spt_pairs.empty())
     {
-        cout<<"Node #" << i<< "   Dist along entire path: "<< setprecision(1)<<fixed<<dist[i] << endl;
+        pid temp = spt_pairs.top();
+        spt_pairs.pop();
+        cout<<setw(13)<<left<<"Node #: "+to_string(temp.first)<<setw(10)<<right<< " SPT dist: " << \
+            setprecision(1)<<fixed<< temp.second<<endl;
+    vertices[temp.first].print_node();
     }
 }
 
 /**
     Function returns index of min value that is not yet included in the MST included set
 */
-int MST_Utility::minDistance(vector<double> dist, vector<bool> included_set)
+int MST_Utility::minDist_Dijkstra(const vector<double>& dist, const vector<bool>& included_set)
 {
     double min_weight = DBL_MAX;
-    int min_index;
+    int min_index =0;
     for(int v = 0; v < _num_vertices; v++)
         if(included_set[v] == false && dist[v] <= min_weight)
         {
@@ -40,7 +45,16 @@ int MST_Utility::minDistance(vector<double> dist, vector<bool> included_set)
     return min_index;
 }
 
-vector<double> MST_Utility::Dijkstra()
+void MST_Utility:: _organize_spt(PRIORITY_Q& spt_pairs, \
+                                 vector<int>& spt_index, vector<double>& spt_dist)
+{
+    for(int i =0; i<_num_vertices; i++)
+    {
+        spt_pairs.push(make_pair(spt_index[i], spt_dist[i]));
+    }
+}
+
+PRIORITY_Q MST_Utility::Dijkstra()
 {
     vector<double> dist(_num_vertices, DBL_MAX);  // all distances start infinite
     vector<bool> sptSet(_num_vertices, 0); // holds true if included in shortest path (shortest path tree set)
@@ -49,7 +63,7 @@ vector<double> MST_Utility::Dijkstra()
     int u;
     for(int count = 0; count < _num_vertices; count++)
     {
-        u = minDistance(dist, sptSet); // returns min element index
+        u = minDist_Dijkstra(dist, sptSet); // returns min element index
         sptSet[u] = true; // mark vertex as visited
         SPT_indices.push_back(u);
         for(int v = 0; v < _num_vertices; v++)  // Update dist value of the adjacent vertices of the picked vertex.
@@ -61,20 +75,16 @@ vector<double> MST_Utility::Dijkstra()
             }
         }
     }
-    cout<<"\nSPT INCLUDED INDICES: "<<endl;
-    for(const int &i : SPT_indices)  // access by const reference
-    {
-        std::cout << i << ' ';
-    }
-    std::cout << '\n';
-    return dist;
+    PRIORITY_Q spt_pairs;
+    _organize_spt(spt_pairs, SPT_indices, dist);
+    return spt_pairs;
 }
 
 void Graph::run_MST(int src)
 {
     _mst_util.set_src(src);
-    vector<double> temp = _mst_util.Dijkstra();
-    _mst_util.printSolution(temp);
+    PRIORITY_Q temp = _mst_util.Dijkstra();
+    _mst_util.printSolution(temp, _vertices);
 }
 
 /**
@@ -91,16 +101,13 @@ double Graph::get_dist(Location_Node& loc1, Location_Node& loc2)
     return earth_radius * nC;
 }
 
-void Graph::init(void)
+void Graph::init(void) //vector<double> dist(_num_vertices, DBL_MAX)
 {
-    int num_vertices = _vertices.size();
+    unsigned num_vertices = _vertices.size();
+
     for(unsigned i = 0; i < num_vertices; i++)
     {
-        std::vector < double > row;
-        for(unsigned j = 0; j < num_vertices; j++)
-        {
-            row.push_back(0.0);
-        }
+        std::vector < double > row(num_vertices, 0.0);
         _AdjMatrix.push_back(row);
     }
 }
@@ -141,17 +148,12 @@ int Graph::get_num_vertices()
     return _vertices.size();
 }
 
-int Graph:: get_num_edges()
-{
-    int num_vertices = _vertices.size();
-    return num_vertices * (num_vertices-1) / 2;
-}
-
 void Graph::addEdge(int from, int to, double weight)
 {
     _AdjMatrix[from][to] = weight;
     _AdjMatrix[to][from] = weight;
 }
+
 void Graph::build_edges()
 {
     int num_vertices = get_num_vertices();
@@ -160,11 +162,9 @@ void Graph::build_edges()
         int i = j;
         while(i < num_vertices-1)
         {
-            //cout<<j<<" "<<i+1<<" " << get_dist(_vertices[j], _vertices[i+1]) << endl;
             addEdge(j, i+1, get_dist(_vertices[j], _vertices[i+1]));
             i++;
         }
-        //cout<<endl;
     }
     _mst_util.init(_AdjMatrix, 0); // initialize MST utility with new adjacency matrix
 }
