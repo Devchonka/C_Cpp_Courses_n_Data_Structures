@@ -30,6 +30,7 @@
 #include <iomanip>
 #include <cmath> // for M_PI
 #include <cfloat> // for DBL_MAX
+#include <tuple>
 
 typedef std::pair<int, double> pid;
 typedef std::pair<double,double> pdd;
@@ -108,7 +109,11 @@ public:
     void set_src(int);
 
     PRIORITY_Q Dijkstra(); // should make static if threading?
-    int minDist_Dijkstra(const std::vector<double>&, const std::vector<bool>&);
+    int minDist_DijkstraPrim(const std::vector<double>&, const std::vector<bool>&);
+
+    std::vector<int> Prim();
+    int minIndex_Prim(std::vector<int>&, std::vector<bool>&);
+    void print_Prim_MST(std::vector<int>&);
 
     void printSolution(PRIORITY_Q&, const std::vector<Location_Node>&);
 };
@@ -143,7 +148,6 @@ public:
     void print_vertices();
 
     void run_MST(int); // takes in starting node
-
     int get_num_vertices();
 };
 

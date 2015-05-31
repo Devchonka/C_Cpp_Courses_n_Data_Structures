@@ -24,21 +24,21 @@ void MST_Utility::printSolution(PRIORITY_Q& spt_pairs, const vector<Location_Nod
     {
         pid temp = spt_pairs.top();
         spt_pairs.pop();
-        cout<<setw(13)<<left<<"Node #: "+to_string(temp.first)<<setw(10)<<right<< " SPT dist: " << \
+        cout<<setw(13)<<left<<"Node #: "+to_string(temp.first)<<setw(10)<<right<< " Distance: " << \
             setprecision(1)<<fixed<< temp.second<<endl;
-    vertices[temp.first].print_node();
+        vertices[temp.first].print_node();
     }
 }
 
 /**
     Function returns index of min value that is not yet included in the MST included set
 */
-int MST_Utility::minDist_Dijkstra(const vector<double>& dist, const vector<bool>& included_set)
+int MST_Utility::minDist_DijkstraPrim(const vector<double>& dist, const vector<bool>& included_set)
 {
     double min_weight = DBL_MAX;
     int min_index =0;
     for(int v = 0; v < _num_vertices; v++)
-        if(included_set[v] == false && dist[v] <= min_weight)
+        if(included_set[v] == false && dist[v] < min_weight)
         {
             min_weight = dist[v], min_index = v;
         }
@@ -54,18 +54,65 @@ void MST_Utility:: _organize_spt(PRIORITY_Q& spt_pairs, \
     }
 }
 
+vector<int> MST_Utility::Prim()
+{
+    vector<int> from(_num_vertices);
+    vector<int> to(_num_vertices, INT_MAX);
+    vector<bool> mstSet(_num_vertices,0);
+    to[0] = 0;
+    from[0] = -1;
+    int u =0;
+    for(int count = 0; count < _num_vertices-1; count++)
+    {
+        u = minIndex_Prim(to, mstSet);
+        mstSet[u] = true;
+        for(int v = 0; v < _num_vertices; v++)
+        {
+            if(_AdjMatrix[u][v] && mstSet[v] == false && _AdjMatrix[u][v] <  to[v])
+            {
+                from[v]  = u;
+            }
+            to[v] = _AdjMatrix[u][v];
+        }
+    }
+    return from;
+}
+
+void MST_Utility::print_Prim_MST(vector<int>& from)
+{
+    cout << "MST for Undirected Graph using Prim's Algorithm:" << endl;
+    cout<<"  Edge      Weight"<<endl;
+    for(int i = 1; i < _num_vertices; i++)
+    {
+        cout<<setw(3) << right << from[i]<<setw(4) << right <<" - " + to_string(i) << " " << setw(10) << right<< \
+        setprecision(4)<<fixed<< _AdjMatrix[i][from[i]] << endl;
+    }
+}
+
+int MST_Utility::minIndex_Prim(vector<int>& key, vector<bool>& mstSet)
+{
+    // Initialize min value
+    int min = INT_MAX, min_index;
+    for(int v = 0; v < _num_vertices; v++)
+        if(mstSet[v] == false && key[v] < min)
+        {
+            min = key[v], min_index = v;
+        }
+    return min_index;
+}
+
 PRIORITY_Q MST_Utility::Dijkstra()
 {
     vector<double> dist(_num_vertices, DBL_MAX);  // all distances start infinite
     vector<bool> sptSet(_num_vertices, 0); // holds true if included in shortest path (shortest path tree set)
-    vector<int> SPT_indices;
+    vector<int> SPT_indices(_num_vertices, _src);
     dist[_src] = 0; // dist from source to itself
     int u;
-    for(int count = 0; count < _num_vertices; count++)
+    for(int count = 0; count < _num_vertices-1; count++)
     {
-        u = minDist_Dijkstra(dist, sptSet); // returns min element index
+        u = minDist_DijkstraPrim(dist, sptSet); // returns min element index
         sptSet[u] = true; // mark vertex as visited
-        SPT_indices.push_back(u);
+        SPT_indices[count+1] = u;
         for(int v = 0; v < _num_vertices; v++)  // Update dist value of the adjacent vertices of the picked vertex.
         {
             if(!sptSet[v] && (_AdjMatrix[u][v]) && (dist[u] < DBL_MAX)   // update if not in sptSet, theres an edge u to v
@@ -83,8 +130,10 @@ PRIORITY_Q MST_Utility::Dijkstra()
 void Graph::run_MST(int src)
 {
     _mst_util.set_src(src);
-    PRIORITY_Q temp = _mst_util.Dijkstra();
-    _mst_util.printSolution(temp, _vertices);
+    //PRIORITY_Q temp = _mst_util.Dijkstra();
+    //_mst_util.printSolution(temp, _vertices);
+    vector<int> prim_MST = _mst_util.Prim();
+    _mst_util.print_Prim_MST(prim_MST);
 }
 
 /**
@@ -104,7 +153,6 @@ double Graph::get_dist(Location_Node& loc1, Location_Node& loc2)
 void Graph::init(void) //vector<double> dist(_num_vertices, DBL_MAX)
 {
     unsigned num_vertices = _vertices.size();
-
     for(unsigned i = 0; i < num_vertices; i++)
     {
         std::vector < double > row(num_vertices, 0.0);
@@ -114,6 +162,7 @@ void Graph::init(void) //vector<double> dist(_num_vertices, DBL_MAX)
 
 void Graph::print_adjMatrix(void)
 {
+    cout << "Adjacency Matrix for Undirected is: " << endl;
     unsigned adj_size = _AdjMatrix.size();
     cout << endl << "    ";
     for(unsigned i = 0; i < adj_size ; i++)
