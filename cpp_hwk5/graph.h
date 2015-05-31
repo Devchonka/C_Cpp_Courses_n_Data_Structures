@@ -17,6 +17,8 @@
 	<Longitude>-106.70</Longitude>
 </Location>
 
+    Algorithms completed for this graph: Prim's (MST), Kruskal's (MST), Dijkstra's (SPT).
+
     A regex utility is used to parse the XML file with provided keywords.
 
     Weights for the edges are calculated using Haversine formula using the lat and long of the coordinates.
@@ -31,16 +33,18 @@
 #include <cmath> // for M_PI
 #include <cfloat> // for DBL_MAX
 #include <tuple>
+#include <climits>
+#include <cstdlib>
 
 typedef std::pair<int, double> pid;
 typedef std::pair<double,double> pdd;
 
 struct COMP //functor for keeping priority queue sorted in order of increasing distance
 {
-	bool operator()(const pid& a, const pid& b)
-	{
-		return a.second > b.second;
-	}
+    bool operator()(const pid& a, const pid& b)
+    {
+        return a.second > b.second;
+    }
 };
 typedef std::priority_queue<pid, std::vector<pid>, COMP> PRIORITY_Q;
 
@@ -51,7 +55,7 @@ private:
     std::vector<std::string> _contact_info;
     pdd _coordinates;
 public:
-    Location_Node(): _contact_info({}), _coordinates(std::make_pair(0.0,0.0)){};
+    Location_Node(): _contact_info({}), _coordinates(std::make_pair(0.0,0.0)) {};
     ~Location_Node() {};
 
     double get_long()
@@ -82,7 +86,9 @@ public:
     void print_node() const
     {
         for(auto& i:_contact_info)
+        {
             std::cout<<i<<" ";
+        }
         std::cout<<std::endl<<std::endl;
     }
 };
@@ -96,7 +102,7 @@ private:
 
     void _organize_spt(PRIORITY_Q&, std::vector<int>&, std::vector<double>&); //index, dist pairs
 public:
-    MST_Utility(): _AdjMatrix({}), _src(0), _num_vertices(0){};
+    MST_Utility(): _AdjMatrix({}), _src(0), _num_vertices(0) {};
     ~MST_Utility() {};
 
     void init(std::vector < std::vector < double > > AdjMatrix, int src)
@@ -108,14 +114,14 @@ public:
 
     void set_src(int);
 
-    PRIORITY_Q Dijkstra(); // should make static if threading?
-    int minDist_DijkstraPrim(const std::vector<double>&, const std::vector<bool>&);
+    std::vector<double> Dijkstra(); // should make static if threading?
+    int minDist_Dijkstra(const std::vector<double>&, const std::vector<bool>&);
+    void print_Dijkstra_spt(const std::vector<double>&); // just pass distances to each node from source
 
     std::vector<int> Prim();
-    int minIndex_Prim(std::vector<int>&, std::vector<bool>&);
-    void print_Prim_MST(std::vector<int>&);
+    int minIndex_Prim(const std::vector<int>&, const std::vector<bool>&);
+    void print_Prim_MST(const std::vector<int>&); // pass MST vertex edges
 
-    void printSolution(PRIORITY_Q&, const std::vector<Location_Node>&);
 };
 
 class Graph

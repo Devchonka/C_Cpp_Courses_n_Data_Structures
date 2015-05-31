@@ -33,7 +33,7 @@ private:
 
 public:
     Location_Keeper(std::string fname, const std::vector<std::string>& xml_keywords): _fname(fname), \
-    _xml_keywords(xml_keywords), _location_nodes({}){};
+        _xml_keywords(xml_keywords), _location_nodes({}) {};
     ~Location_Keeper() {};
 
     void create_location_nodes();
