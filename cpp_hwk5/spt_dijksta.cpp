@@ -1,6 +1,3 @@
-#ifndef SPT_DIJKSTRA
-#define SPT_DIJKSTRA
-
 #include "graph.h"
 using namespace std;
 
@@ -56,4 +53,3 @@ void MST_Utility::print_Dijkstra_spt(const vector<double>& dist)
     cout<<endl;
 }
 
-#endif // SPT_DIJKSTRA

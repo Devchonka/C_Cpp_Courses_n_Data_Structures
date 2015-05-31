@@ -1,6 +1,3 @@
-#ifndef MST_PRIM
-#define MST_PRIM
-
 #include "graph.h"
 using namespace std;
 
@@ -51,4 +48,3 @@ void MST_Utility::print_Prim_MST(const vector<int>& from)
     }
     cout<<endl;
 }
-#endif // MST_PRIM
