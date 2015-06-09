@@ -6,10 +6,6 @@
          g++ -std=c++11 *.h *.cpp -o cpp_hwk5
     To check memory leaks with Valgrind:
         valgrind --tool=memcheck --leak-check=yes ./cpp_hwk6
-
-
-        //He said: take map out of singleton.
-        using map is more important than implementing singleton.
 */
 
 #include <iostream>

@@ -39,16 +39,14 @@ void memoryManager::print_allocations()
     }
 }
 
-testClass::testClass(int num_vec_elem, int num_list_elem)
-{
-    _vec = new vector<int*>;
-    _list = new list<string*>;
-    _n_vec_elem = num_vec_elem;
-    _n_list_elem = num_list_elem;
-}
 
 void testClass::init()
 {
+    cout<<"HI"<<endl;
+    _vec = new std::vector<int*>;
+    cout<<"HI"<<endl;
+    _list = new std::list<std::string*>;
+    cout<<"HI"<<endl;
     // vector
     int* pInt = new int;
     for(int i =0; i<_n_vec_elem; ++i)
@@ -81,27 +79,18 @@ testClass:: ~testClass()
 /**
     Overloaded new and delete functions
 */
-void* testClass::operator new(size_t st)
-{
-    cout<<"INSIDE NEW!"<<endl;
-    memoryManager* memMngr = memoryManager::getInstance();
-    memMngr->increm_allocations();
-    void* ptr = malloc(st);
-    memMngr->address2bytes.insert(make_pair(ptr, st));
-    //memMngr->address2bytes[ptr] = st;
-    return ptr;
-}
-
-void* testClass::operator new [](size_t st)
+void* operator new(size_t st)
 {
     memoryManager* memMngr = memoryManager::getInstance();
     memMngr->increm_allocations();
     void* ptr = malloc(st);
-    memMngr->address2bytes.insert(make_pair(ptr, st));
+    mem_pair mp(ptr, st);
+    memMngr->address2bytes.insert(mp);
+    //memMngr->address2bytes.insert(make_pair(ptr, st));
     return ptr;
 }
 
-void* testClass::operator new(size_t st, int a)
+void* operator new [](size_t st)
 {
     memoryManager* memMngr = memoryManager::getInstance();
     memMngr->increm_allocations();
@@ -110,7 +99,16 @@ void* testClass::operator new(size_t st, int a)
     return ptr;
 }
 
-void testClass::operator delete(void* p) throw()
+void* operator new(size_t st, int a)
+{
+    memoryManager* memMngr = memoryManager::getInstance();
+    memMngr->increm_allocations();
+    void* ptr = malloc(st);
+    memMngr->address2bytes.insert(make_pair(ptr, st));
+    return ptr;
+}
+
+void operator delete(void* p) throw()
 {
     if(p)
     {
@@ -120,7 +118,7 @@ void testClass::operator delete(void* p) throw()
     }
 }
 
-void testClass::operator delete[](void* p) throw()
+void operator delete[](void* p) throw()
 {
     if(p)
     {
