@@ -43,15 +43,21 @@ testClass::testClass(int num_vec_elem, int num_list_elem)
 {
     _vec = new vector<int*>;
     _list = new list<string*>;
+    _n_vec_elem = num_vec_elem;
+    _n_list_elem = num_list_elem;
+}
+
+void testClass::init()
+{
     // vector
     int* pInt = new int;
-    for(int i =0; i<num_vec_elem; ++i)
+    for(int i =0; i<_n_vec_elem; ++i)
     {
         int* pInt = new int;
         _vec->push_back(pInt);
     }
     // list
-    for(int i =0; i <num_list_elem; ++i)
+    for(int i =0; i <_n_list_elem; ++i)
     {
         string* p = new string("hi");
         _list->push_back(p);
@@ -77,11 +83,12 @@ testClass:: ~testClass()
 */
 void* testClass::operator new(size_t st)
 {
+    cout<<"INSIDE NEW!"<<endl;
     memoryManager* memMngr = memoryManager::getInstance();
     memMngr->increm_allocations();
     void* ptr = malloc(st);
-    //memMngr->address2bytes.insert(make_pair(ptr, st));
-    memMngr->address2bytes[ptr] = st;
+    memMngr->address2bytes.insert(make_pair(ptr, st));
+    //memMngr->address2bytes[ptr] = st;
     return ptr;
 }
 

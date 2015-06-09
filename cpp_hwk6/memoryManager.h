@@ -12,7 +12,7 @@ private:
     int _numAllocations;
 protected:
     static memoryManager* instance;
-    memoryManager():_numAllocations(0),address2bytes() {};
+    memoryManager():_numAllocations(),address2bytes() {};
 public:
     ~memoryManager();
     std::map <void*, size_t> address2bytes;
@@ -29,9 +29,12 @@ class testClass
 {
     std::vector<int*>* _vec;
     std::list<std::string*>* _list;
+    int _n_vec_elem;
+    int _n_list_elem;
 
 public:
     testClass(int, int);
+    void init();
     ~testClass();
     void* operator new(size_t); // the below are implicitly static if inside class
     void* operator new[](size_t);
