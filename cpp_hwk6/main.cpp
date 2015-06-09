@@ -15,29 +15,10 @@ using namespace std;
 
 int main()
 {
-    // create some variables
     memoryManager* memMngr = memoryManager::getInstance();
-
-    testClass* test = new testClass(1);
-
-    memMngr->print_numAlloc();
+    testClass* test = new testClass(10, 10);
+    memMngr->print_allocations();
     delete(test);
     delete(memMngr);
-
-/*
-    list<string*>* testList = new list<string*>(10);
-    for (int i =0; i <3; ++i)
-    {
-        string* p = new string("hi");
-        testList->push_back(p);
-    }
-    memMngr->print_numAlloc();
-    delete(testList);
-	memMngr->print_numAlloc();
-	*/
-
-
-	//memMngr->check_memLeaks();
-
     return 0;
 }
