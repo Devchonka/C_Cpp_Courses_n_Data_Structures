@@ -16,7 +16,7 @@ using namespace std;
 int main()
 {
     memoryManager* memMngr = memoryManager::getInstance();
-    testClass* test = new testClass(10, 10);
+    testClass* test = new testClass(10, 0);
     test->init();
     memMngr->print_allocations();
     delete(test);

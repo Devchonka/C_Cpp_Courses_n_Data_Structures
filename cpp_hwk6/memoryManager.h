@@ -5,16 +5,18 @@
 #include <list>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
-class mem_pair: public std::pair<void*, size_t>
-{
+template<class T> class MallocAllocator {
 public:
-    mem_pair(void* A, size_t B): pair(std::make_pair(A,B)) {};
-
-    void* operator new(size_t st)
-    {
-        std::cout<<"HERE YO"<<std::endl;
-        return malloc(st);
+    typedef T value_type;
+    MallocAllocator(){}
+    template<class U> MallocAllocator(const MallocAllocator<U>& other){}
+    T* allocate(size_t count){
+        return (T*)malloc(count * sizeof(T));
+    }
+    void deallocate(T* object, size_t n){
+        free(object);
     }
 };
 
@@ -27,12 +29,14 @@ protected:
     memoryManager():_numAllocations(),address2bytes() {};
 public:
     ~memoryManager();
-    std::map<void*, size_t> address2bytes;
+    std::map<void*, size_t,  std::less<void*>, MallocAllocator<std::pair<void*, size_t>>> address2bytes;
     static memoryManager* getInstance();
 
     void increm_allocations();
     void decrem_allocations();
     void print_allocations();
+
+    void free_leaks();
 
     void* operator new(size_t st)
     {

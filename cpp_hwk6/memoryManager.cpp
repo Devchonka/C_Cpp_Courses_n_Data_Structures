@@ -17,7 +17,17 @@ memoryManager* memoryManager:: getInstance() // note this is static in declarati
 
 memoryManager:: ~memoryManager()
 {
-    cout<<"DESTRUCTOR: Number of Allocations: "<< _numAllocations << endl; // After it's own deletion
+    size_t bytes =0;
+    for_each(address2bytes.begin(), address2bytes.end(), [&](pair<void*, size_t> val) { bytes+=val.second;});
+    cout<<"Bytes Leaked in Program: "<< bytes<< endl; // After it's own deletion
+    free_leaks();
+}
+
+void memoryManager:: free_leaks()
+{
+    cout << "Starting process to clear memory leaks."<<endl;
+    for_each(address2bytes.begin(), address2bytes.end(), [&](pair<void*, size_t> val) {free(val.first);});
+    cout<< " Leak Clearing Complete."<<endl;
 }
 
 void memoryManager::increm_allocations()
@@ -42,11 +52,8 @@ void memoryManager::print_allocations()
 
 void testClass::init()
 {
-    cout<<"HI"<<endl;
     _vec = new std::vector<int*>;
-    cout<<"HI"<<endl;
     _list = new std::list<std::string*>;
-    cout<<"HI"<<endl;
     // vector
     int* pInt = new int;
     for(int i =0; i<_n_vec_elem; ++i)
@@ -84,9 +91,7 @@ void* operator new(size_t st)
     memoryManager* memMngr = memoryManager::getInstance();
     memMngr->increm_allocations();
     void* ptr = malloc(st);
-    mem_pair mp(ptr, st);
-    memMngr->address2bytes.insert(mp);
-    //memMngr->address2bytes.insert(make_pair(ptr, st));
+    memMngr->address2bytes.insert(make_pair(ptr, st));
     return ptr;
 }
 
@@ -114,7 +119,10 @@ void operator delete(void* p) throw()
     {
         memoryManager* memMngr = memoryManager::getInstance();
         memMngr->decrem_allocations();
+        auto ptr = memMngr->address2bytes.find(p);
+        memMngr->address2bytes.erase(ptr->first);
         free(p);
+        p=nullptr;
     }
 }
 
@@ -124,6 +132,9 @@ void operator delete[](void* p) throw()
     {
         memoryManager* memMngr = memoryManager::getInstance();
         memMngr->decrem_allocations();
+        auto ptr = memMngr->address2bytes.find(p);
+        memMngr->address2bytes.erase(ptr->first);
         free(p);
+        p= nullptr;
     }
 }
