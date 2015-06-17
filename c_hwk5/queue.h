@@ -21,7 +21,7 @@ struct qnode
     struct qnode *next;
 };
 
-qNODE *dequeue(qNODE**, qNODE**);
+qNODE* dequeue(qNODE**, qNODE**);
 void enqueue(qNODE**, qNODE**, qDATA);
 
 #endif // QUEUE_H

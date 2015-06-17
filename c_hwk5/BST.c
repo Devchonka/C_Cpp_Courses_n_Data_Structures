@@ -1,15 +1,22 @@
 #include "BST.h"
+#include "queue.h"
 
 /****************************************************************
    INORDER
    Print a BST in Left-Root-Right sequence.
 */
-void printTreeInorder(bstNODE *root)
+void printTreeInorder(bstNODE* root)
 {
     if(root)
     {
         printTreeInorder(root->left);
-        printf("%s\n",  root->bstData.word);
+        printf("\n %d %s",  root->bstData.freq, root->bstData.word);
+        qNODE* front = dequeue(&(root)->bstData.q_front, &(root)->bstData.q_rear);
+        while(front)
+        {
+            //printf(" %d.%d", root->bstData.q_front->data.page, root->bstData.q_front->data.line);
+            front = dequeue(&(root)->bstData.q_front, &(root)->bstData.q_rear);
+        }
         printTreeInorder(root->right);
     }
     return;
@@ -37,33 +44,43 @@ bstNODE* buildBinaryTree()
 /****************************************************************
    ITERATIVE Insert
 */
-int insert(bstNODE **root, bstDATA newBstData)
+void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
 {
-    bstNODE **ptr_root = root;
+    bstNODE** ptr_root = root;
     while(*ptr_root)
     {
-        if(strcmp(newBstData.word,(*ptr_root)->bstData.word)>0) //bstData.word > (*ptr_root)->word
+        if(strcmp(new_word,(*ptr_root)->bstData.word)>0)
         {
             ptr_root = &(*ptr_root)->right;
         }
-        else if(strcmp(newBstData.word,(*ptr_root)->bstData.word)<0)
+        else if(strcmp(new_word,(*ptr_root)->bstData.word)<0)
         {
             ptr_root = &(*ptr_root)->left;
         }
-        else // Node already in the tree
+        else
         {
-            //printf("increment freq in word %s\n", newBstData.word);
+            free(new_word);
+            new_word = NULL;
+            (*ptr_root)->bstData.freq++;
+            qDATA qdata = {page_num, line_num};
+            enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
             break;
-            return 0; // duplicate
         }
     }
-    if(!(*ptr_root = (bstNODE *) malloc(sizeof(bstNODE))))
+    if(new_word)
     {
-        printf("Fatal malloc error!\n"), exit(1);
+        if(!(*ptr_root = (bstNODE *) malloc(sizeof(bstNODE))))
+        {
+            printf("Error: Fatal malloc error!\n");
+            exit(1);
+        }
+        bstDATA newTreeData = {new_word,0, NULL, NULL};
+        newTreeData.freq++;
+        qDATA qdata = {page_num, line_num};
+        enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
+        (*ptr_root)->bstData  = newTreeData;
+        (*ptr_root)->left  = (*ptr_root)->right = NULL;
     }
-    (*ptr_root)->bstData  = newBstData;
-    (*ptr_root)->left  = (*ptr_root)->right = NULL;
-    return 1; // data inserted
 }
 
 /****************************************************************
@@ -134,3 +151,18 @@ NODE *find(NODE *root, int target)
    return NULL;
 }
 */
+
+/**
+    Function freeTree frees all the dynamically allocated memory to avoid memory leaks.
+*/
+void* freeTree(bstNODE* root)
+{
+    if(root)
+    {
+        freeTree(root->left);
+        free(root->bstData.word);
+        free(root);
+        freeTree(root->right);
+    }
+    return NULL;
+}
