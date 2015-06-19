@@ -38,7 +38,7 @@ int main() //tuple : std::string, unsigned short, char, std::string, std::string
 {
     string* pText = read_entire_file(FNAME_IN);
     //cout<< *pText << endl;
-    DataBase dBase(pText);
-    delete(pText);
+    DataBase dBase;
+    dBase.build_dataBase(pText);
     return 0;
 }
