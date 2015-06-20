@@ -2,6 +2,9 @@
     CIS 29 : Advanced C++.
     Author: Elena Menyaylenko           Date: 06/08/2015
     Assignment: New and Delete memory management by address and number of bytes.
+
+    Note: This solution takes 26 sec. A more efficient solution will be implemented.
+
     To compile code:
          g++ -std=c++11 *.h *.cpp -o cpp_hwk5
     To check memory leaks with Valgrind:
@@ -14,17 +17,11 @@
     c (continue) or s (step)
     print x
 
-
-    Procedure:
-    x 1) Read in entire file
-    2) For every 10 lines : num+node
-    3) Populate tuples, bar code
-    4) Create unordered map
-
 */
 
 
 #include <iostream>
+#include <ctime>
 #include "lexical_parser.h"
 
 #define TUPLE_SIZE 7
@@ -34,11 +31,13 @@ using namespace std;
 const string FNAME_IN = "Patient.xml";
 const string FNAME_LOOKUP = "Barcodes.txt";
 
-int main() //tuple : std::string, unsigned short, char, std::string, std::string, unsigned, unsigned short
+int main()
 {
-    string* pText = read_entire_file(FNAME_IN);
-    //cout<< *pText << endl;
+    Tester tester;
+    tester.get_barcodes(FNAME_LOOKUP);
+    string* pText = tester.read_entire_file(FNAME_IN);
     DataBase dBase;
     dBase.build_dataBase(pText);
+    tester.lookupBarcodes(dBase);
     return 0;
 }

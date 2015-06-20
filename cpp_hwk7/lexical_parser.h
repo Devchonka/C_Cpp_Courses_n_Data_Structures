@@ -6,13 +6,13 @@
 #include <sstream>
 #include <fstream>
 #include <tuple>
+#include <queue>
 #include <vector>
 #include <unordered_map>
 #include <regex>
 
 typedef std::tuple<std::string, unsigned short, char, std::string, std::string, unsigned, unsigned short> PATIENT_REC;
 
-std::string* read_entire_file(std::string);
 
 class RegEx_Utility
 {
@@ -38,10 +38,22 @@ public:
 class DataBase
 {
     std::unordered_map<long, Patient*> _barcode2Patient;
-
 public:
     DataBase(): _barcode2Patient({}) {};
     ~DataBase();
     void build_dataBase(std::string*);
-    //void search_patients();
+    void search_patient(long);
+};
+
+class Tester
+{
+    int _prog_start_time;
+    std::queue<long> _barcodes;
+
+public:
+    Tester();
+    ~Tester();
+    void get_barcodes(std::string);
+    std::string* read_entire_file(std::string);
+    void lookupBarcodes(DataBase&);
 };
