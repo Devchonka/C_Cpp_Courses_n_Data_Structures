@@ -1,3 +1,7 @@
+/**
+    File BST.c is the source for the BST.h header. It holds definitions for the binary search tree functions.
+*/
+
 #include "BST.h"
 #include "queue.h"
 

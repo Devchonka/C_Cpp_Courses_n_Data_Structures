@@ -1,3 +1,8 @@
+/**
+    File BST.h is the header file for the binary tree node data structure definition and function declarations.
+    It holds definitions for the binary search tree functions.
+*/
+
 #ifndef BST_H
 #define BST_H
 
@@ -29,8 +34,8 @@ struct bstData
 struct bstNode
 {
     bstDATA bstData;
-    struct bstNode *left;
-    struct bstNode *right;
+    struct bstNode* left;
+    struct bstNode* right;
 };
 
 bstNODE* buildBinaryTree();

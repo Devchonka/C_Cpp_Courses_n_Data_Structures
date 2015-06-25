@@ -1,3 +1,7 @@
+/**
+    File queue.c is the source for the queue.h header. It holds definitions for the queue functions.
+*/
+
 #include "queue.h"
 
 /***************************************************

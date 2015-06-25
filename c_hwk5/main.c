@@ -39,6 +39,7 @@ void read_file(char*, bstNODE**);
 void tokenize_line(char*, bstNODE**); // insert to BST here
 char* lowercase(char*);
 void delete_trailingJunk(char[]);
+void get_timeStamp(char*);
 
 const int LINE_SIZE = 1024; // characters per line
 const int PAGE_SIZE = 60; // lines per page
@@ -49,13 +50,12 @@ const int PAGE_SIZE = 60; // lines per page
 */
 int main(int argc, char** argv)
 {
-    struct tm *timeptr;
-    time_t timeval;
-    char buffer[80];
-    time(&timeval);
-    timeptr = localtime(&timeval);
-    strftime(buffer, 80, "%c\n", timeptr);
-    printf("-------------------------\n %s\n", buffer);
+
+    char time_buffer[80];
+    get_timeStamp(time_buffer);
+
+    printf("-------------------------\n %s\n", time_buffer);
+
     char fname_in[256]="";
     char fname_out[256]="";
     get_fnames(fname_in, fname_out, argc, argv);
@@ -65,6 +65,20 @@ int main(int argc, char** argv)
     root = freeTree(root);
     return 0;
 }
+
+/**
+    Function get_timeStamp modifies the value of the char buffer
+*/
+void get_timeStamp(char time_buffer[80])
+{
+    struct tm *timeptr;
+    time_t timeval;
+    time(&timeval);
+    timeptr = localtime(&timeval);
+    strftime(time_buffer, 80, "%c\n", timeptr);
+
+}
+
 
 /**
     Function get_fnames returns by reference the input and output file names,

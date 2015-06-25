@@ -1,5 +1,5 @@
 /**
-    This file contains the queue node struct and the queue node data struct.
+    File queue.h header for the queue functions and definition of the qnode data struct.
 */
 #ifndef QUEUE_H
 #define QUEUE_H
