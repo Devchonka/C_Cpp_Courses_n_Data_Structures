@@ -9,19 +9,19 @@
    INORDER
    Print a BST in Left-Root-Right sequence.
 */
-void printTreeInorder(bstNODE* root)
+void printTreeInorder(bstNODE* root, FILE* ofp)
 {
     if(root)
     {
-        printTreeInorder(root->left);
-        printf("\n %d %s",  root->bstData.freq, root->bstData.word);
+        printTreeInorder(root->left, ofp);
+        fprintf(ofp, "\n %d %s",  root->bstData.freq, root->bstData.word);
         qNODE* front = dequeue(&(root)->bstData.q_front, &(root)->bstData.q_rear);
         while(front)
         {
-            //printf(" %d.%d", root->bstData.q_front->data.page, root->bstData.q_front->data.line);
+            fprintf(ofp, " %d.%d", front->data.page, front->data.line);
             front = dequeue(&(root)->bstData.q_front, &(root)->bstData.q_rear);
         }
-        printTreeInorder(root->right);
+        printTreeInorder(root->right, ofp);
     }
     return;
 }
@@ -53,21 +53,25 @@ void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
     bstNODE** ptr_root = root;
     while(*ptr_root)
     {
-        if(strcmp(new_word,(*ptr_root)->bstData.word)>0)
+        if(strcmp(new_word,(*ptr_root)->bstData.word)>0) // go right in tree
         {
             ptr_root = &(*ptr_root)->right;
         }
-        else if(strcmp(new_word,(*ptr_root)->bstData.word)<0)
+        else if(strcmp(new_word,(*ptr_root)->bstData.word)<0) // go left in tree
         {
             ptr_root = &(*ptr_root)->left;
         }
-        else
+        else // node already exists in the tree : nu duplicate lines!
         {
             free(new_word);
             new_word = NULL;
+            int temp_lineNum = peek_lineNum((*ptr_root)->bstData.q_rear);
             (*ptr_root)->bstData.freq++;
-            qDATA qdata = {page_num, line_num};
-            enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
+            if(temp_lineNum != line_num)
+            {
+                qDATA qdata = {page_num, line_num};
+                enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
+            }
             break;
         }
     }
@@ -78,10 +82,9 @@ void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
             printf("Error: Fatal malloc error!\n");
             exit(1);
         }
-        bstDATA newTreeData = {new_word,0, NULL, NULL};
-        newTreeData.freq++;
+        bstDATA newTreeData = {new_word, 1, NULL, NULL};
         qDATA qdata = {page_num, line_num};
-        enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
+        enqueue(&newTreeData.q_front, &newTreeData.q_rear, qdata);
         (*ptr_root)->bstData  = newTreeData;
         (*ptr_root)->left  = (*ptr_root)->right = NULL;
     }

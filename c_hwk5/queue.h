@@ -23,5 +23,6 @@ struct qnode
 
 qNODE* dequeue(qNODE**, qNODE**);
 void enqueue(qNODE**, qNODE**, qDATA);
+int peek_lineNum();
 
 #endif // QUEUE_H

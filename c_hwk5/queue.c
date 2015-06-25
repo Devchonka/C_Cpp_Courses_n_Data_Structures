@@ -17,6 +17,7 @@ void enqueue(qNODE **queue, qNODE **rear, qDATA data)
         exit(1);
     }
     pnew->data = data;
+    //printf("\nEnqueued pnew->data of line %d\n", pnew->data.line);
     pnew->next = NULL;
     if(*queue == NULL)
     {
@@ -48,4 +49,16 @@ qNODE *dequeue(qNODE **queue, qNODE **rear)
     }
     first->next = NULL;
     return first;
+}
+
+/**
+    Function allows to peek the front of the queue's line number to prevent repetitions.
+*/
+int peek_lineNum(qNODE* q_rear)
+{
+    if(q_rear == NULL)
+    {
+        return -1;
+    }
+    return q_rear->data.line;
 }

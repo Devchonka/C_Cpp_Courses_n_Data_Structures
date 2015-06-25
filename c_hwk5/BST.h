@@ -39,7 +39,7 @@ struct bstNode
 };
 
 bstNODE* buildBinaryTree();
-void printTreeInorder(bstNODE*);
+void printTreeInorder(bstNODE*, FILE*);
 void insert_bstNode(bstNODE**, char*, int, int);
 bstNODE* find(bstNODE*, char*);
 void* freeTree(bstNODE* root);
