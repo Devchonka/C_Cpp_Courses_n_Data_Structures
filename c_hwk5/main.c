@@ -48,9 +48,6 @@ char* get_timeStamp();
 void lowercase_string(char**);
 char* allocateString(char*, bool);
 
-const int LINE_SIZE = 1024; // characters per line
-const int PAGE_SIZE = 40; // lines per page
-
 /**
     Function main takes in command line arguments and prints out the results.
     It puts a time stamp. At the end of execution, it frees dynamically allocated memory.
@@ -63,7 +60,7 @@ int main(int argc, char** argv)
     get_fnames(&fname_in, &fname_out, argc, argv);
     // Build the BST with leafs containing queues
     bstNODE* root = NULL;
-    FILE_INFO fileInf = {0,0,0,0};
+    FILE_INFO fileInf = {0,0,0,0, 1024, 40};
     read_file(fname_in, &root, &fileInf);
     //printTreeInorder(root);
     write_file(fname_out, root, &fileInf);
@@ -173,7 +170,7 @@ void get_fnames(char** fname_in, char** fname_out, int argc, char** argv)
 */
 void read_file(char* fname_in, bstNODE** root, FILE_INFO* fileInf)
 {
-    char line[LINE_SIZE];
+    char line[fileInf->LINE_SIZE];
     FILE* ifp;
     ifp = fopen(fname_in, "r");
     if(!ifp)
@@ -207,7 +204,7 @@ void write_file(char* fname_out, bstNODE* root, FILE_INFO* fileInf)
     char* time = get_timeStamp();
     fprintf(ofp, "\nReport made at: %s\n", time);
     fprintf(ofp, "There are %d distinct tokens, %d pages, %d lines per page.\n", fileInf->num_distinct_words, \
-            fileInf->num_pages, PAGE_SIZE);
+            fileInf->num_pages, fileInf->PAGE_SIZE);
     fprintf(ofp, "The longest token in this text has %d characters.\n", fileInf->length_longest_word);
     printTreeInorder(root, ofp);
     fclose(ofp);
@@ -224,11 +221,11 @@ void tokenize_line(char line[], bstNODE** root, FILE_INFO* fileInf) // also inse
     static int page_num =0;
     line_num++;
     total_lines_read++;
-    if(total_lines_read / PAGE_SIZE - page_num)
+    if(total_lines_read / fileInf->PAGE_SIZE - page_num)
     {
         line_num =0;
     }
-    page_num = total_lines_read / PAGE_SIZE;
+    page_num = total_lines_read / fileInf->PAGE_SIZE;
     fileInf->num_lines = total_lines_read;
     fileInf->num_pages = page_num;
     char* word = strtok(line,"\040\t\n,");

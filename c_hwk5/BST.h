@@ -28,6 +28,9 @@ struct fileInfo
     int num_lines;
     int num_pages;
     int length_longest_word;
+
+    const int const LINE_SIZE; // characters per line
+    const int const PAGE_SIZE; // lines per page
 };
 
 
