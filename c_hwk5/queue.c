@@ -17,7 +17,6 @@ void enqueue(qNODE **queue, qNODE **rear, qDATA data)
         exit(1);
     }
     pnew->data = data;
-    //printf("\nEnqueued pnew->data of line %d\n", pnew->data.line);
     pnew->next = NULL;
     if(*queue == NULL)
     {

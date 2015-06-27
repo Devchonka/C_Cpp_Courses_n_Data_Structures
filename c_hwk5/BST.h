@@ -17,6 +17,20 @@
 typedef struct bstNode bstNODE;
 typedef struct bstData bstDATA;
 
+typedef struct fileInfo FILE_INFO;
+
+/**
+    A struct that defines the information for the processed file
+*/
+struct fileInfo
+{
+    int num_distinct_words;
+    int num_lines;
+    int num_pages;
+    int length_longest_word;
+};
+
+
 /**
     Data struct that stores the word, its frequency of appearance, and pointers to the front and back of its queue.
 */
@@ -40,7 +54,7 @@ struct bstNode
 
 bstNODE* buildBinaryTree();
 void printTreeInorder(bstNODE*, FILE*);
-void insert_bstNode(bstNODE**, char*, int, int);
+void insert_bstNode(bstNODE**, char*, int, FILE_INFO*);
 bstNODE* find(bstNODE*, char*);
 void* freeTree(bstNODE* root);
 

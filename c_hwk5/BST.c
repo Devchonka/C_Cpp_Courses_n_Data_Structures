@@ -19,6 +19,7 @@ void printTreeInorder(bstNODE* root, FILE* ofp)
         while(front)
         {
             fprintf(ofp, " %d.%d", front->data.page, front->data.line);
+            free(front);
             front = dequeue(&(root)->bstData.q_front, &(root)->bstData.q_rear);
         }
         printTreeInorder(root->right, ofp);
@@ -48,7 +49,7 @@ bstNODE* buildBinaryTree()
 /****************************************************************
    ITERATIVE Insert
 */
-void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
+void insert_bstNode(bstNODE** root, char* new_word, int line_num, FILE_INFO* fileInf)
 {
     bstNODE** ptr_root = root;
     while(*ptr_root)
@@ -61,7 +62,7 @@ void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
         {
             ptr_root = &(*ptr_root)->left;
         }
-        else // node already exists in the tree : nu duplicate lines!
+        else // node already exists in the tree : no duplicate lines!
         {
             free(new_word);
             new_word = NULL;
@@ -69,13 +70,13 @@ void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
             (*ptr_root)->bstData.freq++;
             if(temp_lineNum != line_num)
             {
-                qDATA qdata = {page_num, line_num};
+                qDATA qdata = {fileInf->num_pages, line_num};
                 enqueue(&(*ptr_root)->bstData.q_front, &(*ptr_root)->bstData.q_rear, qdata);
             }
             break;
         }
     }
-    if(new_word)
+    if(new_word) // node is not already existing in tree.. add it as a new token
     {
         if(!(*ptr_root = (bstNODE *) malloc(sizeof(bstNODE))))
         {
@@ -83,8 +84,9 @@ void insert_bstNode(bstNODE** root, char* new_word, int line_num, int page_num)
             exit(1);
         }
         bstDATA newTreeData = {new_word, 1, NULL, NULL};
-        qDATA qdata = {page_num, line_num};
+        qDATA qdata = {fileInf->num_pages, line_num};
         enqueue(&newTreeData.q_front, &newTreeData.q_rear, qdata);
+        fileInf->num_distinct_words++;
         (*ptr_root)->bstData  = newTreeData;
         (*ptr_root)->left  = (*ptr_root)->right = NULL;
     }
@@ -167,9 +169,11 @@ void* freeTree(bstNODE* root)
     if(root)
     {
         freeTree(root->left);
-        free(root->bstData.word);
-        free(root);
         freeTree(root->right);
+        free(root->bstData.word);
+        //Queue has already been freed during traversal
+        free(root);
+        root = NULL;
     }
-    return NULL;
+    return root;
 }
